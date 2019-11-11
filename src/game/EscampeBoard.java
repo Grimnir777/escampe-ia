@@ -1,5 +1,9 @@
 package game;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 public class EscampeBoard implements Partie1{
 	
 	private int [][] liseres = new int[][] {{1,2,2,3,1,2},
@@ -10,6 +14,17 @@ public class EscampeBoard implements Partie1{
 											{3,2,2,1,3,2}};
 											
 	private Square[][] board;
+	boolean licorneB;
+	boolean licorneN;
+	
+	Map<Integer, Character> colHashMap  = new HashMap<Integer, Character>() {{
+	    put(0,'A');
+	    put(1,'B');
+	    put(2,'C');
+	    put(3,'D');
+	    put(4,'E');
+	    put(5,'F');
+	}};
 	
 	public EscampeBoard() {
 		this.board = new Square[6][6];
@@ -19,6 +34,8 @@ public class EscampeBoard implements Partie1{
 				squares[j] = new Square(this.liseres[i][j]);
 			}
 		}
+		this.licorneB = true;
+		this.licorneN = true;
 	}
 	
 	@Override
@@ -66,12 +83,66 @@ public class EscampeBoard implements Partie1{
 		return true;
 	}
 	
+	private ArrayList<String> movesForSquare(int ligne, int col, int level, String initSquare) {
+		ArrayList<String> results = new ArrayList<String>();
+		
+		if(ligne<0 | ligne >5 | col<0 | col>5) {
+			return results;
+		}
+		String typeOfSquare = this.board[ligne][col].type();
+		if(!typeOfSquare.equals("-")) {
+			return results;
+		}
+		if(level>0) {
+			results.addAll(movesForSquare(ligne-1, col, level-1, initSquare));
+			results.addAll(movesForSquare(ligne+1, col, level-1, initSquare));
+			results.addAll(movesForSquare(ligne, col-1, level-1, initSquare));
+			results.addAll(movesForSquare(ligne, col+1, level-1, initSquare));
+		}
+		else {
+			results.add(initSquare + "-" + this.colHashMap.get(col) + Integer.toString(ligne+1));
+		}
+		return results;
+	}
+	
 	
 	/** calcule les coups possibles pour le joueur <player> sur le plateau courant
 	* @param player le joueur qui joue, représenté par "noir" ou "blanc"
 	*/
 	public String[] possiblesMoves(String player) {
-		return new String[1];
+		ArrayList<String> moves = new ArrayList<String>();
+		if(player.equals("blanc")) {
+			for (int i = 0; i < board.length; i++) {
+				Square[] squares = board[i];
+				for (int j = 0; j < squares.length; j++) {
+					if(squares[j].type().equals("B") | squares[j].type().equals("b")) { //pion qui peut etre déplacé
+						int level = squares[j].lisere();
+						System.out.println("calcul pour : " + this.colHashMap.get(j) + Integer.toString(i+1));
+						moves.addAll(movesForSquare(i-1,j,level-1,this.colHashMap.get(j) + Integer.toString(i+1)));
+						moves.addAll(movesForSquare(i+1,j,level-1,this.colHashMap.get(j) + Integer.toString(i+1)));
+						moves.addAll(movesForSquare(i,j-1,level-1,this.colHashMap.get(j) + Integer.toString(i+1)));
+						moves.addAll(movesForSquare(i,j+1,level-1,this.colHashMap.get(j) + Integer.toString(i+1)));
+					}
+				}
+			}
+		}
+		else if (player.equals("noir")) {
+			for (int i = 0; i < board.length; i++) {
+				Square[] squares = board[i];
+				for (int j = 0; j < squares.length; j++) {
+					if(squares[j].type().equals("N") | squares[j].type().equals("n")) { //pion qui peut etre déplacé
+						int level = squares[j].lisere();
+						moves.addAll(movesForSquare(i,j,level,this.colHashMap.get(j+1) + Integer.toString(i+1)));
+					}
+				}
+			}
+		}
+		else {
+			throw new Error("wrong player type : blanc ou noir");
+		}
+		String[] arr = new String[moves.size()]; 
+		arr = moves.toArray(arr);
+		return arr;
 	}
 	
 	
@@ -87,7 +158,7 @@ public class EscampeBoard implements Partie1{
 	/** vrai lorsque le plateau corespond à une fin de partie
 	*/
 	public boolean gameOver() {
-		return true;
+		return !this.licorneB | !this.licorneN;
 	}
 	
 	
@@ -119,7 +190,23 @@ public class EscampeBoard implements Partie1{
 		System.out.println(s3.type());
 		
 		EscampeBoard e = new EscampeBoard();
-		System.out.println(e);
+		e.board[0][1].setSquare("noir", 2); //ligne 0 col B
+		e.board[0][3].setSquare("noir", 1); //ligne 0 col D
+		e.board[0][5].setSquare("noir", 2); //ligne 0 col F
+		e.board[1][0].setSquare("noir", 2); //ligne 1 col A
+		e.board[1][2].setSquare("noir", 2); //ligne 1 col C
+		e.board[1][4].setSquare("noir", 2); //ligne 1 col E
 		
+		e.board[5][1].setSquare("blanc", 2); //ligne 5 col B
+		e.board[5][3].setSquare("blanc", 1); //ligne 5 col D
+		e.board[5][5].setSquare("blanc", 2); //ligne 5 col F
+		e.board[4][0].setSquare("blanc", 2); //ligne 4 col A
+		e.board[4][2].setSquare("blanc", 2); //ligne 4 col C
+		e.board[4][4].setSquare("blanc", 2); //ligne 4 col E
+		System.out.println(e);
+		String[] arr = e.possiblesMoves("blanc");
+		for (String string : arr) {
+			System.out.println("--> " + string + "\n");
+		}
 	}
 }
