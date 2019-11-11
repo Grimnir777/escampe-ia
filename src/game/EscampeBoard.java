@@ -8,6 +8,34 @@ public class EscampeBoard implements Partie1{
 											{2,1,3,2,3,1},
 											{1,3,1,3,1,2},
 											{3,2,2,1,3,2}};
+											
+	private Square[][] board;
+	
+	public EscampeBoard() {
+		this.board = new Square[6][6];
+		for (int i = 0; i < board.length; i++) {
+			Square[] squares = board[i];
+			for (int j = 0; j < squares.length; j++) {
+				squares[j] = new Square(this.liseres[i][j]);
+			}
+		}
+	}
+	
+	@Override
+	public String toString() {
+		String r = "%  ABCDEF\n";
+		for (int i = 0; i < board.length; i++) {
+			Square[] squares = board[i];
+			r+= "0" + Integer.toString(i) + " ";
+			for (int j = 0; j < squares.length; j++) {
+				r+=squares[j].type();
+			}
+			r+= " 0" + Integer.toString(i) + "\n";
+		}
+		r += "%  ABCDEF\n";
+		return r;
+	}
+	
 	
 	
 	/** initialise un plateau à partir d'un fichier texte
@@ -34,6 +62,7 @@ public class EscampeBoard implements Partie1{
 	* @param player le joueur qui joue, représenté par "noir" ou "blanc"
 	*/
 	public boolean isValidMove(String move, String player) {
+		
 		return true;
 	}
 	
@@ -88,6 +117,9 @@ public class EscampeBoard implements Partie1{
 	
 		s3.setSquare("blanc", 2); // expect Paladin blanc b
 		System.out.println(s3.type());
+		
+		EscampeBoard e = new EscampeBoard();
+		System.out.println(e);
 		
 	}
 }
