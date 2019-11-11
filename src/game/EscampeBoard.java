@@ -63,6 +63,31 @@ public class EscampeBoard implements Partie1{
 	
 	
 	public static void main(String[] args) {
+		//test
+		Square s = new Square(1);
+		System.out.println(s.lisere());
+		
+		Square s2 = new Square(2);
+		System.out.println(s2.lisere());
+	
+		Square s3 = new Square(3);
+		System.out.println(s3.lisere());
+		System.out.println(s3.type()); // expect Empty -
+		
+		
+		s3.setSquare("noir", 1); // expect Licorne noire N
+		System.out.println(s3.type());
+		
+		s3.setSquare("noir", 2); // expect paladin noire n
+		System.out.println(s3.type());
+		
+		
+		s3.setSquare("blanc", 1); // expect Licorne blanche B
+		System.out.println(s3.type());
+		
+	
+		s3.setSquare("blanc", 2); // expect Paladin blanc b
+		System.out.println(s3.type());
 		
 	}
 }
