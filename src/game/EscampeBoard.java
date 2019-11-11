@@ -26,11 +26,11 @@ public class EscampeBoard implements Partie1{
 		String r = "%  ABCDEF\n";
 		for (int i = 0; i < board.length; i++) {
 			Square[] squares = board[i];
-			r+= "0" + Integer.toString(i) + " ";
+			r+= "0" + Integer.toString(i+1) + " ";
 			for (int j = 0; j < squares.length; j++) {
 				r+=squares[j].type();
 			}
-			r+= " 0" + Integer.toString(i) + "\n";
+			r+= " 0" + Integer.toString(i+1) + "\n";
 		}
 		r += "%  ABCDEF\n";
 		return r;
