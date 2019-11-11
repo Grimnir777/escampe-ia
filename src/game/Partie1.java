@@ -1,5 +1,6 @@
 package game;
 
+//test Antho
 public interface Partie1 {
 	/** initialise un plateau à partir d'un fichier texte
 	* @param fileName le nom du fichier à lire
