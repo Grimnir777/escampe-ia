@@ -1,19 +1,16 @@
 package game;
 
-//test Antho
 public interface Partie1 {
 	/** initialise un plateau à partir d'un fichier texte
 	* @param fileName le nom du fichier à lire
 	*/
 	public void setFromFile(String fileName);
 	
-	
 	/** sauve la configuration de l'état courant (plateau et pièces restantes) dans un fichier
 	* @param fileName le nom du fichier à sauvegarder
 	* Le format doit être compatible avec celui utilisé pour la lecture.
 	*/
 	public void saveToFile(String fileName);
-	
 	
 	/** indique si le coup <move> est valide pour le joueur <player> sur le plateau courant
 	* @param move le coup à jouer,

@@ -1,8 +1,19 @@
 package game;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class EscampeBoard implements Partie1{
 	
@@ -59,6 +70,23 @@ public class EscampeBoard implements Partie1{
 	* @param fileName le nom du fichier à lire
 	*/
 	public void setFromFile(String fileName) {
+		List<String> fileContent = new ArrayList<>();
+		List<List<String>> charBoard = null;
+		try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
+			charBoard = stream
+					.filter(line -> !line.startsWith("%"))
+					.map(line -> line.split(" ")[1])
+					.map(line -> Arrays.asList(line.split("")))
+					.collect(Collectors.toList());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
+		charBoard.stream().forEach(c -> {
+			c.forEach(System.out::print);
+			System.out.print("\n");
+		});
 		
 	}
 	
@@ -69,6 +97,24 @@ public class EscampeBoard implements Partie1{
 	*/
 	public void saveToFile(String fileName) {
 		
+		PrintWriter writer = null;
+		try {
+			writer = new PrintWriter(fileName, "UTF-8");
+		} catch (FileNotFoundException | UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		writer.println("% ABCDEF");
+		writer.println("01 -n-N-n 01");
+		writer.println("02 n-n-n- 02");
+		writer.println("03 ------ 03");
+		writer.println("04 ------ 04");
+		writer.println("05 b-b-b- 05");
+		writer.println("06 -b-B-b 06");
+		writer.println("% ABCDEF");
+	
+		writer.close();
+		//Files.write(Paths.get(fileName),(Iterable<String>)stream::iterator);
 	}
 	
 	
@@ -208,5 +254,8 @@ public class EscampeBoard implements Partie1{
 		for (String string : arr) {
 			System.out.println("--> " + string + "\n");
 		}
+		
+		e.saveToFile("test2.txt");
+		e.setFromFile("test2.txt");
 	}
 }
