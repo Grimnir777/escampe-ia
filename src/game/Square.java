@@ -19,9 +19,7 @@ public class Square {
 	 * 
 	 * */
 	
-	public Square() {
-		
-	}
+	public Square() {}
 	
 	public Square(int lis) {
 		this.setLisere(lis);
@@ -100,6 +98,4 @@ public class Square {
 			throw new Error("wrong argument : player");
 		}
 	}
-	
-	
 }

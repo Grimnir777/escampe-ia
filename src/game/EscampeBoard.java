@@ -1,8 +1,6 @@
 package game;
 
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -11,8 +9,12 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,7 +31,9 @@ public class EscampeBoard implements Partie1{
 	private boolean licorneB;
 	private boolean licorneN;
 	
-	Map<Integer, Character> colHashMap  = new HashMap<Integer, Character>() {{
+	Map<Integer, Character> colHashMap  = new HashMap<Integer, Character>() {
+		private static final long serialVersionUID = -3708238127665825076L;
+	{
 	    put(0,'A');
 	    put(1,'B');
 	    put(2,'C');
@@ -48,6 +52,10 @@ public class EscampeBoard implements Partie1{
 		}
 		this.licorneB = true;
 		this.licorneN = true;
+	}
+	
+	public Square[][] getBoard() {
+		return this.board.clone();
 	}
 	
 	@Override
@@ -133,8 +141,105 @@ public class EscampeBoard implements Partie1{
 	* @param player le joueur qui joue, représenté par "noir" ou "blanc"
 	*/
 	public boolean isValidMove(String move, String player) {
-		
-		return true;
+		if(move.contains("/") & move.length() == 17) {
+			List<String> moveSquares =  new ArrayList<String>(Arrays.asList(move.split("/")));
+			
+			//Check pattern
+			for (String mv : moveSquares) {
+				if(!mv.matches("^[ABCDEF][123456]$")) return false;
+			}
+			
+			//check doublons
+			Set<String> set = new HashSet<String>(moveSquares);
+			if(set.size() < moveSquares.size()){
+			    return false;
+			}
+			
+			//check ligne
+			if(player.equals("blanc")) {
+				for (String mv : moveSquares) {
+					int line = Character.getNumericValue(mv.charAt(1));
+					if( line != 5 && line != 6) {
+						return false;
+					}
+				}
+			}
+			else if (player.equals("noir")) {
+				for (String mv : moveSquares) {
+					int line = Character.getNumericValue(mv.charAt(1));
+					if( line != 1 && line != 2) {
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+		else if(move.contains("-") & move.length() == 5) {//C1-D1
+			String[] moveSquares = move.split("-");
+			int ligneCase1 = Character.getNumericValue(moveSquares[0].charAt(1)) - 1;
+			int colCase1 = -1;
+			
+			for (Entry<Integer, Character> entry : this.colHashMap.entrySet()) {
+		        if (Objects.equals(moveSquares[0].charAt(0), entry.getValue())) {
+		        	colCase1 = entry.getKey();
+		        }
+		    }
+			if(colCase1 == -1 ) {
+				throw new Error("Mauvaise case de départ");
+			}
+			
+			//Test si pièce alliée sur la case de départ
+			String pieceOnSquare = this.board[ligneCase1][colCase1].type();
+			if(player.equals("blanc")) {
+				if(!pieceOnSquare.equals("B") && !pieceOnSquare.equals("b") )
+				{
+					return false;
+				}
+			}
+			else if (player.equals("noir")) {
+				if(!pieceOnSquare.equals("N") && !pieceOnSquare.equals("n") )
+				{
+					return false;
+				}
+			}
+
+			int ligneCase2 =  Character.getNumericValue(moveSquares[1].charAt(1)) - 1;
+			int colCase2 = -1;
+			
+			for (Entry<Integer, Character> entry : this.colHashMap.entrySet()) {
+		        if (Objects.equals(moveSquares[1].charAt(0), entry.getValue())) {
+		        	colCase2 = entry.getKey();
+		        }
+		    }
+			if(colCase2 == -1 ) {
+				throw new Error("Mauvaise case d'arrivée");
+			}
+			
+			//Test si pas de pièce ennemie sur la case d'arrivée sauf si licorne
+			String pieceOnFinalSquare = this.board[ligneCase2][colCase2].type();
+			if(player.equals("blanc")) {
+				if(pieceOnFinalSquare.equals("n") ) return false;
+			}
+			else if (player.equals("noir")) {
+				if(pieceOnFinalSquare.equals("b") ) return false;
+			}
+			
+			//Calcul des coups possibles depuis la position courante
+			ArrayList<String> moves = new ArrayList<String>();
+			int lisere = this.board[ligneCase1][colCase1].lisere();
+			moves.addAll(movesForSquare(ligneCase1-1, colCase1, lisere-1, moveSquares[0]));
+			moves.addAll(movesForSquare(ligneCase1+1, colCase1, lisere-1, moveSquares[0]));
+			moves.addAll(movesForSquare(ligneCase1, colCase1-1, lisere-1, moveSquares[0]));
+			moves.addAll(movesForSquare(ligneCase1, colCase1+1, lisere-1, moveSquares[0]));
+			
+			if(moves.contains(move)) {
+				return true;
+			}
+			return false;
+		}
+		else {
+			throw new Error("wrong argument : move");
+		}
 	}
 	
 	private ArrayList<String> movesForSquare(int ligne, int col, int level, String initSquare) {
@@ -144,6 +249,7 @@ public class EscampeBoard implements Partie1{
 			return results;
 		}
 		String typeOfSquare = this.board[ligne][col].type();
+		//TODO si on tombe sur licorne au niveau 0
 		if(!typeOfSquare.equals("-")) {
 			return results;
 		}
@@ -171,10 +277,11 @@ public class EscampeBoard implements Partie1{
 				for (int j = 0; j < squares.length; j++) {
 					if(squares[j].type().equals("B") | squares[j].type().equals("b")) { //pion qui peut etre déplacé
 						int level = squares[j].lisere();
-						moves.addAll(movesForSquare(i-1,j,level-1,this.colHashMap.get(j) + Integer.toString(i+1)));
-						moves.addAll(movesForSquare(i+1,j,level-1,this.colHashMap.get(j) + Integer.toString(i+1)));
-						moves.addAll(movesForSquare(i,j-1,level-1,this.colHashMap.get(j) + Integer.toString(i+1)));
-						moves.addAll(movesForSquare(i,j+1,level-1,this.colHashMap.get(j) + Integer.toString(i+1)));
+						String start = this.colHashMap.get(j) + Integer.toString(i+1);
+						moves.addAll(movesForSquare(i-1,j,level-1,start));
+						moves.addAll(movesForSquare(i+1,j,level-1,start));
+						moves.addAll(movesForSquare(i,j-1,level-1,start));
+						moves.addAll(movesForSquare(i,j+1,level-1,start));
 					}
 				}
 			}
@@ -246,8 +353,16 @@ public class EscampeBoard implements Partie1{
 		e.saveToFile("testB.txt");
 		e = new EscampeBoard();
 		e.setFromFile("testB.txt");
-		
 		System.out.println(e);
 		
+		System.out.println(e.isValidMove("C6/A6/B5/D5/E6/F5","blanc")); //true
+		System.out.println(e.isValidMove("C6/A6/B4/D5/E6/F5","blanc")); //false (4)
+		
+		System.out.println(e.isValidMove("C1/A1/A1/D2/E2/F2","noir")); //false duplicate
+		System.out.println(e.isValidMove("C1/A1/B1/D2/E2/F2","noir")); // true
+		
+		System.out.println(e.isValidMove("A5-A4","blanc"));
+		System.out.println(e.isValidMove("A5-A6","blanc"));
+		System.out.println(e.isValidMove("B6-C5","blanc"));
 	}
 }
