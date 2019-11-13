@@ -2,6 +2,7 @@ package game;
 
 public class Square {
 	byte value;
+	
 	/* Réprésentation sous forme d'octet
 	 * 
 	 * case simple : XX100XXX
@@ -88,9 +89,9 @@ public class Square {
 		this.value &= (byte) (32 + 16 + 8);
 	}
 	
-	public void setSquare(String player,int type) { // 1 licorne 2 paladin
+	public void setSquare(String player,SquareType type) { // 1 licorne 2 paladin
 		this.resetSquare();
-		this.value |= ((byte) type) <<1;
+		this.value |= ((byte) type.getValue()) <<1;
 		if(player.equals("noir")){
 			this.value |= (byte) 1;
 		}

@@ -98,16 +98,16 @@ public class EscampeBoard implements Partie1{
 						this.board[line][col].resetSquare();
 						break;
 					case 'N':
-						this.board[line][col].setSquare("noir",1);				
+						this.board[line][col].setSquare("noir", SquareType.licorne);				
 						break;
 					case 'n':
-						this.board[line][col].setSquare("noir",2);		
+						this.board[line][col].setSquare("noir",SquareType.paladin);		
 						break;
 					case 'B':
-						this.board[line][col].setSquare("blanc",1);		
+						this.board[line][col].setSquare("blanc",SquareType.licorne);		
 						break;
 					case 'b':
-						this.board[line][col].setSquare("blanc",2);		
+						this.board[line][col].setSquare("blanc",SquareType.paladin);		
 						break;
 					default:
 						break;
@@ -141,7 +141,7 @@ public class EscampeBoard implements Partie1{
 	* @param player le joueur qui joue, représenté par "noir" ou "blanc"
 	*/
 	public boolean isValidMove(String move, String player) {
-		if(move.contains("/") & move.length() == 17) {
+		if(move.contains("/") && move.length() == 17) {
 			List<String> moveSquares =  new ArrayList<String>(Arrays.asList(move.split("/")));
 			
 			//Check pattern
@@ -155,6 +155,7 @@ public class EscampeBoard implements Partie1{
 			    return false;
 			}
 			
+			//TODO Check si bon coté (si le joueur noir a joué en haut ou en bas son premier coup)
 			//check ligne
 			if(player.equals("blanc")) {
 				for (String mv : moveSquares) {
@@ -174,8 +175,16 @@ public class EscampeBoard implements Partie1{
 			}
 			return true;
 		}
-		else if(move.contains("-") & move.length() == 5) {//C1-D1
+		else if(move.contains("-") && move.length() == 5) { // pattern XX-XX
 			String[] moveSquares = move.split("-");
+			
+			
+			//Check pattern
+			for (String mv : moveSquares) {
+				if(!mv.matches("^[ABCDEF][123456]$")) return false;
+			}
+			
+			
 			int ligneCase1 = Character.getNumericValue(moveSquares[0].charAt(1)) - 1;
 			int colCase1 = -1;
 			
@@ -185,7 +194,7 @@ public class EscampeBoard implements Partie1{
 		        }
 		    }
 			if(colCase1 == -1 ) {
-				throw new Error("Mauvaise case de départ");
+				return false;
 			}
 			
 			//Test si pièce alliée sur la case de départ
@@ -212,7 +221,7 @@ public class EscampeBoard implements Partie1{
 		        }
 		    }
 			if(colCase2 == -1 ) {
-				throw new Error("Mauvaise case d'arrivée");
+				return false;
 			}
 			
 			//Test si pas de pièce ennemie sur la case d'arrivée sauf si licorne
@@ -227,10 +236,10 @@ public class EscampeBoard implements Partie1{
 			//Calcul des coups possibles depuis la position courante
 			ArrayList<String> moves = new ArrayList<String>();
 			int lisere = this.board[ligneCase1][colCase1].lisere();
-			moves.addAll(movesForSquare(ligneCase1-1, colCase1, lisere-1, moveSquares[0]));
-			moves.addAll(movesForSquare(ligneCase1+1, colCase1, lisere-1, moveSquares[0]));
-			moves.addAll(movesForSquare(ligneCase1, colCase1-1, lisere-1, moveSquares[0]));
-			moves.addAll(movesForSquare(ligneCase1, colCase1+1, lisere-1, moveSquares[0]));
+			moves.addAll(movesForSquare(ligneCase1-1, colCase1, lisere-1, moveSquares[0],player));
+			moves.addAll(movesForSquare(ligneCase1+1, colCase1, lisere-1, moveSquares[0],player));
+			moves.addAll(movesForSquare(ligneCase1, colCase1-1, lisere-1, moveSquares[0],player));
+			moves.addAll(movesForSquare(ligneCase1, colCase1+1, lisere-1, moveSquares[0],player));
 			
 			if(moves.contains(move)) {
 				return true;
@@ -238,26 +247,43 @@ public class EscampeBoard implements Partie1{
 			return false;
 		}
 		else {
-			throw new Error("wrong argument : move");
+			return false;
 		}
 	}
 	
-	private ArrayList<String> movesForSquare(int ligne, int col, int level, String initSquare) {
+	private ArrayList<String> movesForSquare(int ligne, int col, int level, String initSquare, String player) {
 		ArrayList<String> results = new ArrayList<String>();
 		
 		if(ligne<0 | ligne >5 | col<0 | col>5) {
 			return results;
 		}
 		String typeOfSquare = this.board[ligne][col].type();
-		//TODO si on tombe sur licorne au niveau 0
+		
+		
+		//Si on tombe sur la licorne adverse au niveau 0, alors le coup est valide
+		if(level == 0) {
+			if(player.equals("blanc")) {
+				if(typeOfSquare.equals("N")) {
+					results.add(initSquare + "-" + this.colHashMap.get(col) + Integer.toString(ligne+1));
+					return results;
+				}
+			}
+			else if (player.equals("noir")) {
+				if(typeOfSquare.equals("B")) {
+					results.add(initSquare + "-" + this.colHashMap.get(col) + Integer.toString(ligne+1));
+					return results;
+				}
+			}
+		}
+		
 		if(!typeOfSquare.equals("-")) {
 			return results;
 		}
 		if(level>0) {
-			results.addAll(movesForSquare(ligne-1, col, level-1, initSquare));
-			results.addAll(movesForSquare(ligne+1, col, level-1, initSquare));
-			results.addAll(movesForSquare(ligne, col-1, level-1, initSquare));
-			results.addAll(movesForSquare(ligne, col+1, level-1, initSquare));
+			results.addAll(movesForSquare(ligne-1, col, level-1, initSquare,player));
+			results.addAll(movesForSquare(ligne+1, col, level-1, initSquare,player));
+			results.addAll(movesForSquare(ligne, col-1, level-1, initSquare,player));
+			results.addAll(movesForSquare(ligne, col+1, level-1, initSquare,player));
 		}
 		else {
 			results.add(initSquare + "-" + this.colHashMap.get(col) + Integer.toString(ligne+1));
@@ -278,10 +304,10 @@ public class EscampeBoard implements Partie1{
 					if(squares[j].type().equals("B") | squares[j].type().equals("b")) { //pion qui peut etre déplacé
 						int level = squares[j].lisere();
 						String start = this.colHashMap.get(j) + Integer.toString(i+1);
-						moves.addAll(movesForSquare(i-1,j,level-1,start));
-						moves.addAll(movesForSquare(i+1,j,level-1,start));
-						moves.addAll(movesForSquare(i,j-1,level-1,start));
-						moves.addAll(movesForSquare(i,j+1,level-1,start));
+						moves.addAll(movesForSquare(i-1,j,level-1,start,player));
+						moves.addAll(movesForSquare(i+1,j,level-1,start,player));
+						moves.addAll(movesForSquare(i,j-1,level-1,start,player));
+						moves.addAll(movesForSquare(i,j+1,level-1,start,player));
 					}
 				}
 			}
@@ -292,10 +318,10 @@ public class EscampeBoard implements Partie1{
 				for (int j = 0; j < squares.length; j++) {
 					if(squares[j].type().equals("N") | squares[j].type().equals("n")) { //pion qui peut etre déplacé
 						int level = squares[j].lisere();
-						moves.addAll(movesForSquare(i-1,j,level-1,this.colHashMap.get(j) + Integer.toString(i+1)));
-						moves.addAll(movesForSquare(i+1,j,level-1,this.colHashMap.get(j) + Integer.toString(i+1)));
-						moves.addAll(movesForSquare(i,j-1,level-1,this.colHashMap.get(j) + Integer.toString(i+1)));
-						moves.addAll(movesForSquare(i,j+1,level-1,this.colHashMap.get(j) + Integer.toString(i+1)));
+						moves.addAll(movesForSquare(i-1,j,level-1,this.colHashMap.get(j) + Integer.toString(i+1),player));
+						moves.addAll(movesForSquare(i+1,j,level-1,this.colHashMap.get(j) + Integer.toString(i+1),player));
+						moves.addAll(movesForSquare(i,j-1,level-1,this.colHashMap.get(j) + Integer.toString(i+1),player));
+						moves.addAll(movesForSquare(i,j+1,level-1,this.colHashMap.get(j) + Integer.toString(i+1),player));
 					}
 				}
 			}
@@ -328,19 +354,19 @@ public class EscampeBoard implements Partie1{
 	public static void main(String[] args) {
 
 		EscampeBoard e = new EscampeBoard();
-		e.board[0][1].setSquare("noir", 2); //ligne 0 col B
-		e.board[0][3].setSquare("noir", 1); //ligne 0 col D
-		e.board[0][5].setSquare("noir", 2); //ligne 0 col F
-		e.board[1][0].setSquare("noir", 2); //ligne 1 col A
-		e.board[1][2].setSquare("noir", 2); //ligne 1 col C
-		e.board[1][4].setSquare("noir", 2); //ligne 1 col E
+		e.board[0][1].setSquare("noir", SquareType.paladin); //ligne 0 col B
+		e.board[0][3].setSquare("noir", SquareType.licorne); //ligne 0 col D
+		e.board[0][5].setSquare("noir", SquareType.paladin); //ligne 0 col F
+		e.board[1][0].setSquare("noir", SquareType.paladin); //ligne 1 col A
+		e.board[1][2].setSquare("noir", SquareType.paladin); //ligne 1 col C
+		e.board[1][4].setSquare("noir", SquareType.paladin); //ligne 1 col E
 		
-		e.board[5][1].setSquare("blanc", 2); //ligne 5 col B
-		e.board[5][3].setSquare("blanc", 1); //ligne 5 col D
-		e.board[5][5].setSquare("blanc", 2); //ligne 5 col F
-		e.board[4][0].setSquare("blanc", 2); //ligne 4 col A
-		e.board[4][2].setSquare("blanc", 2); //ligne 4 col C
-		e.board[4][4].setSquare("blanc", 2); //ligne 4 col E
+		e.board[5][1].setSquare("blanc", SquareType.paladin); //ligne 5 col B
+		e.board[5][3].setSquare("blanc", SquareType.licorne); //ligne 5 col D
+		e.board[5][5].setSquare("blanc", SquareType.paladin); //ligne 5 col F
+		e.board[4][0].setSquare("blanc", SquareType.paladin); //ligne 4 col A
+		e.board[4][2].setSquare("blanc", SquareType.paladin); //ligne 4 col C
+		e.board[4][4].setSquare("blanc", SquareType.paladin); //ligne 4 col E
 
 		System.out.println("%%%% State %%%%");
 		System.out.println(e);
