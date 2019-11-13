@@ -1,7 +1,8 @@
 package game;
 
-import java.io.FileInputStream;
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -25,8 +26,8 @@ public class EscampeBoard implements Partie1{
 											{3,2,2,1,3,2}};
 											
 	private Square[][] board;
-	boolean licorneB;
-	boolean licorneN;
+	private boolean licorneB;
+	private boolean licorneN;
 	
 	Map<Integer, Character> colHashMap  = new HashMap<Integer, Character>() {{
 	    put(0,'A');
@@ -70,24 +71,41 @@ public class EscampeBoard implements Partie1{
 	* @param fileName le nom du fichier à lire
 	*/
 	public void setFromFile(String fileName) {
-		List<String> fileContent = new ArrayList<>();
-		List<List<String>> charBoard = null;
+		
+		List<String> charBoard = null;
 		try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
 			charBoard = stream
 					.filter(line -> !line.startsWith("%"))
 					.map(line -> line.split(" ")[1])
-					.map(line -> Arrays.asList(line.split("")))
 					.collect(Collectors.toList());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		
-		charBoard.stream().forEach(c -> {
-			c.forEach(System.out::print);
-			System.out.print("\n");
-		});
-		
+
+
+		for (int line = 0; line < charBoard.size(); line++) {
+			for (int col = 0; col < charBoard.get(line).length(); col++) {
+				switch (charBoard.get(line).charAt(col)) {
+					case '-':
+						this.board[line][col].resetSquare();
+						break;
+					case 'N':
+						this.board[line][col].setSquare("noir",1);				
+						break;
+					case 'n':
+						this.board[line][col].setSquare("noir",2);		
+						break;
+					case 'B':
+						this.board[line][col].setSquare("blanc",1);		
+						break;
+					case 'b':
+						this.board[line][col].setSquare("blanc",2);		
+						break;
+					default:
+						break;
+				}
+			}
+		}
 	}
 	
 	
@@ -100,21 +118,11 @@ public class EscampeBoard implements Partie1{
 		PrintWriter writer = null;
 		try {
 			writer = new PrintWriter(fileName, "UTF-8");
+			writer.print(this);
+			writer.close();
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		writer.println("% ABCDEF");
-		writer.println("01 -n-N-n 01");
-		writer.println("02 n-n-n- 02");
-		writer.println("03 ------ 03");
-		writer.println("04 ------ 04");
-		writer.println("05 b-b-b- 05");
-		writer.println("06 -b-B-b 06");
-		writer.println("% ABCDEF");
-	
-		writer.close();
-		//Files.write(Paths.get(fileName),(Iterable<String>)stream::iterator);
 	}
 	
 	
@@ -163,7 +171,6 @@ public class EscampeBoard implements Partie1{
 				for (int j = 0; j < squares.length; j++) {
 					if(squares[j].type().equals("B") | squares[j].type().equals("b")) { //pion qui peut etre déplacé
 						int level = squares[j].lisere();
-						System.out.println("calcul pour : " + this.colHashMap.get(j) + Integer.toString(i+1));
 						moves.addAll(movesForSquare(i-1,j,level-1,this.colHashMap.get(j) + Integer.toString(i+1)));
 						moves.addAll(movesForSquare(i+1,j,level-1,this.colHashMap.get(j) + Integer.toString(i+1)));
 						moves.addAll(movesForSquare(i,j-1,level-1,this.colHashMap.get(j) + Integer.toString(i+1)));
@@ -178,7 +185,10 @@ public class EscampeBoard implements Partie1{
 				for (int j = 0; j < squares.length; j++) {
 					if(squares[j].type().equals("N") | squares[j].type().equals("n")) { //pion qui peut etre déplacé
 						int level = squares[j].lisere();
-						moves.addAll(movesForSquare(i,j,level,this.colHashMap.get(j+1) + Integer.toString(i+1)));
+						moves.addAll(movesForSquare(i-1,j,level-1,this.colHashMap.get(j) + Integer.toString(i+1)));
+						moves.addAll(movesForSquare(i+1,j,level-1,this.colHashMap.get(j) + Integer.toString(i+1)));
+						moves.addAll(movesForSquare(i,j-1,level-1,this.colHashMap.get(j) + Integer.toString(i+1)));
+						moves.addAll(movesForSquare(i,j+1,level-1,this.colHashMap.get(j) + Integer.toString(i+1)));
 					}
 				}
 			}
@@ -209,32 +219,7 @@ public class EscampeBoard implements Partie1{
 	
 	
 	public static void main(String[] args) {
-		//test
-		Square s = new Square(1);
-		System.out.println(s.lisere());
-		
-		Square s2 = new Square(2);
-		System.out.println(s2.lisere());
-	
-		Square s3 = new Square(3);
-		System.out.println(s3.lisere());
-		System.out.println(s3.type()); // expect Empty -
-		
-		
-		s3.setSquare("noir", 1); // expect Licorne noire N
-		System.out.println(s3.type());
-		
-		s3.setSquare("noir", 2); // expect paladin noire n
-		System.out.println(s3.type());
-		
-		
-		s3.setSquare("blanc", 1); // expect Licorne blanche B
-		System.out.println(s3.type());
-		
-	
-		s3.setSquare("blanc", 2); // expect Paladin blanc b
-		System.out.println(s3.type());
-		
+
 		EscampeBoard e = new EscampeBoard();
 		e.board[0][1].setSquare("noir", 2); //ligne 0 col B
 		e.board[0][3].setSquare("noir", 1); //ligne 0 col D
@@ -249,13 +234,20 @@ public class EscampeBoard implements Partie1{
 		e.board[4][0].setSquare("blanc", 2); //ligne 4 col A
 		e.board[4][2].setSquare("blanc", 2); //ligne 4 col C
 		e.board[4][4].setSquare("blanc", 2); //ligne 4 col E
+
+		System.out.println("%%%% State %%%%");
 		System.out.println(e);
+		
 		String[] arr = e.possiblesMoves("blanc");
 		for (String string : arr) {
 			System.out.println("--> " + string + "\n");
 		}
 		
-		e.saveToFile("test2.txt");
-		e.setFromFile("test2.txt");
+		e.saveToFile("testB.txt");
+		e = new EscampeBoard();
+		e.setFromFile("testB.txt");
+		
+		System.out.println(e);
+		
 	}
 }

@@ -87,7 +87,7 @@ public class Square {
 	}
 	
 	public void resetSquare() {
-		this.value &= (byte) 32 + 16 + 8;
+		this.value &= (byte) (32 + 16 + 8);
 	}
 	
 	public void setSquare(String player,int type) { // 1 licorne 2 paladin
