@@ -34,6 +34,7 @@ public class EscampeBoard implements Partie1{
 	
 	private boolean firstB;
 	private boolean firstN;
+	private boolean firstChooseUp;
 	
 	Map<Integer, Character> colHashMap  = new HashMap<Integer, Character>() {
 		private static final long serialVersionUID = -3708238127665825076L;
@@ -56,6 +57,8 @@ public class EscampeBoard implements Partie1{
 		}
 		this.licorneB = true;
 		this.licorneN = true;
+		this.firstN = true;
+		this.firstB = true;
 	}
 	
 	public Square[][] getBoard() {
@@ -146,12 +149,14 @@ public class EscampeBoard implements Partie1{
 	*/
 	public boolean isValidMove(String move, String player) {
 		if(move.contains("/") && move.length() == 17) {
-			List<String> moveSquares =  new ArrayList<String>(Arrays.asList(move.split("/")));
-			
-			//Check pattern
-			for (String mv : moveSquares) {
-				if(!mv.matches("^[ABCDEF][123456]$")) return false;
+			//check si premier coup
+			//si joueur noir n'a pas joué et que le joueur blanc veut jouer ==> false
+			// ou si joueur blanc a déjà joué son coup
+			if( (this.firstN && player.equals("blanc")) || !this.firstB) { 
+				return false;
 			}
+			
+			List<String> moveSquares =  new ArrayList<String>(Arrays.asList(move.split("/")));
 			
 			//check doublons
 			Set<String> set = new HashSet<String>(moveSquares);
@@ -159,22 +164,22 @@ public class EscampeBoard implements Partie1{
 			    return false;
 			}
 			
-			//TODO Check si bon coté (si le joueur noir a joué en haut ou en bas son premier coup)
-			//check ligne
-			if(player.equals("blanc")) {
-				for (String mv : moveSquares) {
-					int line = Character.getNumericValue(mv.charAt(1));
-					if( line != 5 && line != 6) {
-						return false;
-					}
-				}
+			//Check si toutes les lignes fournies sont du meme cote
+			boolean pattern1=false;
+			boolean pattern2=false;
+			for (String mv : moveSquares) {
+				if(!mv.matches("^[ABCDEF][12]$")) {pattern1 = true;}
+				if(!mv.matches("^[ABCDEF][56]$")) {pattern2 = true;}
 			}
-			else if (player.equals("noir")) {
+			
+			if(pattern1 && pattern2) return false;
+			
+			//check ligne
+			if(player.equals("blanc")) { // si on arrive ici le premier coup a été joué
 				for (String mv : moveSquares) {
 					int line = Character.getNumericValue(mv.charAt(1));
-					if( line != 1 && line != 2) {
-						return false;
-					}
+					if(this.firstChooseUp && (line==1 || line==2)) return false;
+					if(!this.firstChooseUp && (line==5 || line==6)) return false;
 				}
 			}
 			return true;
