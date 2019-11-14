@@ -338,91 +338,9 @@ public class EscampeBoard implements Partie1{
 	/** modifie le plateau en jouant le coup move avec la piece choose
 	* @param move le coup à jouer, sous la forme "C1-D1" ou "C6/A6/B5/D5/E6/F5"
 	* @param player le joueur qui joue, représenté par "noir" ou "blanc"
-	* 
-	* C1 va en D1 : 5 caractères  
-	* C6 licorn A6 B5 D5 E6 F5 : 17 caractères 
-	* Premier coup : 2 
-	* 
-	* Faire une recherche inversée de la hashmap pour avoir l'index de la ligne correspondant. 
-	* Faire un reset de la première case et set e la seconde case.
 	*/
-	/* Réprésentation sous forme d'octet
-	 * 
-	 * case simple : XX100XXX
-	 * case double : XX010XXX
-	 * case triple : XX001XXX
-	 * 
-	 * Type de pièce
-	 * aucune      : XXXXX00X
-	 * paladin 	   : XXXXX10X
-	 * licorne 	   : XXXXX01X
-	 * 
-	 * Pièce alliée ou ennemie ? 
-	 * blanc (alliée) : XXXXXXX0
-	 * noir (ennemie) : XXXXXXX1
-	 * 
-	 * */
-	
-	
-	boolean init_b = true;
-	boolean init_n = true;
-	
 	public void play(String move, String player) {
-	
-		if(move.length()==15 && init_b==true && player.equals("blanc")) {
-			String[] position0 = move.split("/");
-			//position0[0]="C6";
-			// : XXXXX010;
-			//position0[1]="A6";
-			// : XXXXX100;
-			//position0[2]="B5";
-			// : XXXXX100;
-			//position0[3]="D5";
-			// : XXXXX100;
-			//position0[4]="E6";
-			// : XXXXX100;
-			//position0[5]="F5";
-			// : XXXXX100;
-			
-			/**
-			board[5][2].setSquare("blanc", 1); //ligne 6 col C - 1 = licorne
-			board[5][0].setSquare("blanc", 2); //ligne 6 col A - 2 = paladin
-			board[4][1].setSquare("blanc", 2); //ligne 5 col B
-			board[4][3].setSquare("blanc", 2); //ligne 5 col D
-			board[5][4].setSquare("blanc", 2); //ligne 6 col E
-			board[4][5].setSquare("blanc", 2); //ligne 5 col F
-			**/
-			init_b=false;
-		}else if(move.length()==15 && init_n==true && player.equals("noir")) {
-			String[] position1 = move.split("/");
-			//position1[0]="C6";
-			//position1[1]="A6";
-			//position1[2]="B5";
-			//position1[3]="D5";
-			//position1[4]="E6";
-			//position1[5]="F5";
-			
-			/**
-			board[5][2].setSquare("noir", 1); //ligne 6 col C - 1 = licorne
-			board[5][0].setSquare("noir", 2); //ligne 6 col A - 2 = paladin
-			board[4][1].setSquare("noir", 2); //ligne 5 col B
-			board[4][3].setSquare("noir", 2); //ligne 5 col D
-			board[5][4].setSquare("noir", 2); //ligne 6 col E
-			board[4][5].setSquare("noir", 2); //ligne 5 col F
-			**/
-			
-			init_n=false;
-		}else if(move.length()==5) {
-			String[] position2 = move.split("-");
-			//position2[0]="C1";
-			//position2[1]="D1";
-			
-			
-		}else if(move.equals("e")){
-			return;
-		}else {
-			throw new Error("wrong move");
-		}
+		
 	}
 	
 	
