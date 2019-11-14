@@ -31,6 +31,9 @@ public class EscampeBoard implements Partie1{
 	private boolean licorneB;
 	private boolean licorneN;
 	
+	private boolean firstB;
+	private boolean firstN;
+	
 	Map<Integer, Character> colHashMap  = new HashMap<Integer, Character>() {
 		private static final long serialVersionUID = -3708238127665825076L;
 	{
@@ -176,6 +179,8 @@ public class EscampeBoard implements Partie1{
 			return true;
 		}
 		else if(move.contains("-") && move.length() == 5) { // pattern XX-XX
+			
+			//TODO vérification dernier liséré
 			String[] moveSquares = move.split("-");
 			
 			
@@ -187,12 +192,7 @@ public class EscampeBoard implements Partie1{
 			
 			int ligneCase1 = Character.getNumericValue(moveSquares[0].charAt(1)) - 1;
 			int colCase1 = -1;
-			
-			for (Entry<Integer, Character> entry : this.colHashMap.entrySet()) {
-		        if (Objects.equals(moveSquares[0].charAt(0), entry.getValue())) {
-		        	colCase1 = entry.getKey();
-		        }
-		    }
+			colCase1 = this.getIndexOfCol(moveSquares[0].charAt(0));
 			if(colCase1 == -1 ) {
 				return false;
 			}
@@ -214,12 +214,7 @@ public class EscampeBoard implements Partie1{
 
 			int ligneCase2 =  Character.getNumericValue(moveSquares[1].charAt(1)) - 1;
 			int colCase2 = -1;
-			
-			for (Entry<Integer, Character> entry : this.colHashMap.entrySet()) {
-		        if (Objects.equals(moveSquares[1].charAt(0), entry.getValue())) {
-		        	colCase2 = entry.getKey();
-		        }
-		    }
+			colCase2 = this.getIndexOfCol(moveSquares[1].charAt(0));
 			if(colCase2 == -1 ) {
 				return false;
 			}
@@ -296,6 +291,8 @@ public class EscampeBoard implements Partie1{
 	* @param player le joueur qui joue, représenté par "noir" ou "blanc"
 	*/
 	public String[] possiblesMoves(String player) {
+		//TODO vérification dernier liséré doit partir de celui ci
+		
 		ArrayList<String> moves = new ArrayList<String>();
 		if(player.equals("blanc")) {
 			for (int i = 0; i < board.length; i++) {
@@ -340,7 +337,52 @@ public class EscampeBoard implements Partie1{
 	* @param player le joueur qui joue, représenté par "noir" ou "blanc"
 	*/
 	public void play(String move, String player) {
-		
+		if(move.contains("/") && move.length() == 17) {
+			List<String> moveSquares =  new ArrayList<String>(Arrays.asList(move.split("/")));
+			int ligne = Character.getNumericValue(moveSquares.get(0).charAt(1)) - 1;
+			int col = -1;
+			col = this.getIndexOfCol(moveSquares.get(0).charAt(0));
+			this.board[ligne][col].setSquare(player, SquareType.licorne);
+			
+			for (int i = 0; i < moveSquares.size(); i++) {
+				ligne = Character.getNumericValue(moveSquares.get(i).charAt(1)) - 1;
+				col = this.getIndexOfCol(moveSquares.get(i).charAt(0));
+				this.board[ligne][col].setSquare(player, SquareType.paladin);
+			}
+		}
+		else if(move.contains("-") && move.length() == 5) {
+			List<String> moveSquares =  new ArrayList<String>(Arrays.asList(move.split("-")));
+			int ligne1 = Character.getNumericValue(moveSquares.get(0).charAt(1)) - 1;
+			int col1 = this.getIndexOfCol(moveSquares.get(0).charAt(0));
+			int ligne2 = Character.getNumericValue(moveSquares.get(1).charAt(1)) - 1;
+			int col2 = this.getIndexOfCol(moveSquares.get(1).charAt(0));
+			
+			if(player.equals("blanc")) {
+				String typeOfPiece = this.board[ligne1][col1].type();
+				if(this.board[ligne2][col2].type().equals("N")) {
+					this.licorneN = false;
+				}
+				if(typeOfPiece.equals("b")) {
+					this.board[ligne2][col2].setSquare(player, SquareType.paladin);
+				}
+				if(typeOfPiece.equals("B")) {
+					this.board[ligne2][col2].setSquare(player, SquareType.licorne);
+				}
+			}
+			else if (player.equals("noir"))	{
+				String typeOfPiece = this.board[ligne1][col1].type();
+				if(this.board[ligne2][col2].type().equals("B")) {
+					this.licorneB = false;
+				}
+				if(typeOfPiece.equals("n")) {
+					this.board[ligne2][col2].setSquare(player, SquareType.paladin);
+				}
+				if(typeOfPiece.equals("N")) {
+					this.board[ligne2][col2].setSquare(player, SquareType.licorne);
+				}
+			}
+			this.board[ligne1][col1].resetSquare();
+		}
 	}
 	
 	
@@ -348,6 +390,16 @@ public class EscampeBoard implements Partie1{
 	*/
 	public boolean gameOver() {
 		return !this.licorneB | !this.licorneN;
+	}
+	
+	private int getIndexOfCol(char charToFind) {
+		int r = -1;
+		for (Entry<Integer, Character> entry : this.colHashMap.entrySet()) {
+	        if (Objects.equals(charToFind, entry.getValue())) {
+	        	r = entry.getKey();
+	        }
+	    }
+		return r;
 	}
 	
 	
@@ -390,5 +442,8 @@ public class EscampeBoard implements Partie1{
 		System.out.println(e.isValidMove("A5-A4","blanc"));
 		System.out.println(e.isValidMove("A5-A6","blanc"));
 		System.out.println(e.isValidMove("B6-C5","blanc"));
+		
+		e.play("A5-A4", "blanc");
+		System.out.println(e);
 	}
 }
