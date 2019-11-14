@@ -28,6 +28,7 @@ public class EscampeBoard implements Partie1{
 											{3,2,2,1,3,2}};
 											
 	private Square[][] board;
+	
 	private boolean licorneB;
 	private boolean licorneN;
 	
@@ -436,7 +437,7 @@ public class EscampeBoard implements Partie1{
 		System.out.println(e.isValidMove("C6/A6/B5/D5/E6/F5","blanc")); //true
 		System.out.println(e.isValidMove("C6/A6/B4/D5/E6/F5","blanc")); //false (4)
 		
-		System.out.println(e.isValidMove("C1/A1/A1/D2/E2/F2","noir")); //false duplicate
+		System.out.println(e.isValidMove("C1/A1/A1/D2/E2/F2","noir")); //false duplicate<
 		System.out.println(e.isValidMove("C1/A1/B1/D2/E2/F2","noir")); // true
 		
 		System.out.println(e.isValidMove("A5-A4","blanc"));
