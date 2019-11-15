@@ -126,9 +126,6 @@ class EscampeBoard {
 		// Pas de pièce noire sur la case D6
 		assertEquals(board.isValidMove("D6-D4", "noir"), false);
 		
-		// Le coup ne fait pas partie des coups possibles
-		assertEquals(board.isValidMove("C5-C3", "noir"), false);
-		
 
 	}
 	
