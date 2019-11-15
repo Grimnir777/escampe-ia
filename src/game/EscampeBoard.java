@@ -253,6 +253,7 @@ public class EscampeBoard implements Partie1{
 	}
 	
 	private ArrayList<String> movesForSquare(int ligne, int col, int level, String initSquare, String player) {
+		//TODO check case précédente
 		ArrayList<String> results = new ArrayList<String>();
 		
 		if(ligne<0 | ligne >5 | col<0 | col>5) {
@@ -355,6 +356,8 @@ public class EscampeBoard implements Partie1{
 				col = this.getIndexOfCol(moveSquares.get(i).charAt(0));
 				this.board[ligne][col].setSquare(player, SquareType.paladin);
 			}
+			if(player.equals("blanc")) {this.firstB = false;}
+			else if(player.equals("noir")) {this.firstN = false;}
 		}
 		else if(move.contains("-") && move.length() == 5) {
 			List<String> moveSquares =  new ArrayList<String>(Arrays.asList(move.split("-")));

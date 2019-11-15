@@ -98,20 +98,27 @@ class EscampeBoard {
 	
 
 	@Test
-	void Isvalidmovetest() {
+	void IsvalidFirstmovetest() {
 		game.EscampeBoard board = new game.EscampeBoard();
 		
-		//TODO isValidMove Premier coup valide
+		// isValidMove Premier coup valide
 		assertEquals(board.isValidMove("C6/A6/B5/D5/E6/F5", "noir"), true);
-		//board.play("C6/A6/B5/D5/E6/F5", "noir");
 		
-		//TODO isValidMove Premier coup invalide sur plus de 2 lignes
-		assertEquals(board.isValidMove("C6/A4/B3/D1/E2/F5", "blanc"), true);
-		//TODO isValidMove Premier coup invalide (2 fois la même case)
-		assertEquals(board.isValidMove("C6/C6/A5/D5/E6/F5", "noir"),true);
+		//isValidMove Premier coup invalide sur plus de 2 lignes
+		assertEquals(board.isValidMove("C6/A4/B3/D1/E2/F5", "blanc"), false);
+		//isValidMove Premier coup invalide (2 fois la même case)
+		assertEquals(board.isValidMove("C6/C6/A5/D5/E6/F5", "noir"),false);
 
-		//TODO isValidMove Premier coup invalide du mauvais côté
-		board.isValidMove("C6/A6/B5/D5/E6/F5", "blanc");
+		//isValidMove Premier coup invalide car joueur noir n'a pas joué
+		assertEquals(board.isValidMove("C6/A6/B5/D5/E6/F5", "blanc"),false);
+		
+		//joue coup valide
+		board.play("C6/A6/B5/D5/E6/F5", "noir");
+		//isValidMove Premier coup invalide car le joueur noir a choisi ce côté
+		assertEquals(board.isValidMove("C6/A6/B5/D5/E6/F5", "blanc"),false);
+		
+		//par contre on peut jouer ce coup là de l'autre côté
+		assertEquals(board.isValidMove("C1/A1/B2/D2/E1/F2", "blanc"),true);
 	}
 	
 
