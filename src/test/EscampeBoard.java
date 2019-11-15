@@ -2,9 +2,7 @@ package test;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
-
 import game.Square;
-import game.SquareType;
 
 class EscampeBoard {
 
@@ -30,10 +28,7 @@ class EscampeBoard {
 	void SaveAndReadBoardTest() {
 		game.EscampeBoard board = new game.EscampeBoard();
 		
-		
-		//TODO jouer premier et deuxieme coup
 		board.play("C6/A6/B5/D5/E6/F5", "noir");
-		board.play("C6-D6", "noir"); 
 		//Sauvegarder board
 		board.saveToFile("testC.txt");
 		
@@ -49,51 +44,23 @@ class EscampeBoard {
 				assertEquals(squares[line][col].type(),squares2[line][col].type());
 			}
 		}
-		
-		//assertEquals(board.getBoard(),board2.getBoard());
-		/*
-		//creer nouveau board
-		//game.EscampeBoard ne = new game.EscampeBoard();
-		Square[][] squares = board.getBoard();
-		squares[5][3].setSquare("noir", SquareType.licorne); //ligne 6 col D
-		squares[5][0].setSquare("noir", SquareType.paladin); //ligne 6 col A
-		squares[4][1].setSquare("noir", SquareType.paladin); //ligne 5 col B
-		squares[4][3].setSquare("noir", SquareType.paladin); //ligne 5 col D
-		squares[5][4].setSquare("noir", SquareType.paladin); //ligne 6 col E
-		squares[4][5].setSquare("noir", SquareType.paladin); //ligne 5 col F
-		board.saveToFile("testD.txt");
-		
-		
-		//read board 
-		board.setFromFile("testD.txt");
-		
-		//assert les 2 board sont égaux
-		for (int line = 0; line < squares.length; line++) {
-			for (int col = 0; col < squares[line].length; col++) {
-				assertEquals(squares[line][col].type(),"-");
-			}
-		}*/
-		
 	}
 	
 	
 
 
 	@Test
-	void Playtest() {
+	void PositionPionTest() {
 		game.EscampeBoard board = new game.EscampeBoard();
 		
-		//TODO Play -> Premier coup vérification que l'on peut faire qu'un seul coup à 17 caractères
 		board.play("C6/A6/B5/D5/E6/F5", "noir");
 		Square[][] squares = board.getBoard();
-		assertEquals(squares[5][2].type(), "N");
-		System.out.println(squares[5][2].type());
-		
-		//TODO Play -> Coup normal
-		board.play("B5-A5", "noir"); 
-		
-		//TODO Play -> Coup normal arrivé sur licorne adverse
-		//board.play("A6-C0", "noir"); 
+		assertEquals(squares[5][2].type(), "N"); //C6
+		assertEquals(squares[5][0].type(), "n"); //A6
+		assertEquals(squares[4][1].type(), "n"); //B5
+		assertEquals(squares[4][3].type(), "n"); //D5
+		assertEquals(squares[5][4].type(), "n"); //E6
+		assertEquals(squares[4][5].type(), "n"); //F5
 	}
 	
 
@@ -101,24 +68,90 @@ class EscampeBoard {
 	void IsvalidFirstmovetest() {
 		game.EscampeBoard board = new game.EscampeBoard();
 		
-		// isValidMove Premier coup valide
+		// Pattern invalide
+		assertEquals(board.isValidMove("Z6/Y6/T5/Y5/U6/P5", "noir"), false);
+		
+		// Premier coup valide
 		assertEquals(board.isValidMove("C6/A6/B5/D5/E6/F5", "noir"), true);
 		
-		//isValidMove Premier coup invalide sur plus de 2 lignes
-		assertEquals(board.isValidMove("C6/A4/B3/D1/E2/F5", "blanc"), false);
-		//isValidMove Premier coup invalide (2 fois la même case)
+		// Premier coup invalide sur plus de 2 lignes
+		assertEquals(board.isValidMove("C6/A4/B3/D1/E2/F5", "noir"), false);
+		
+		// Premier coup invalide (2 fois la même case)
 		assertEquals(board.isValidMove("C6/C6/A5/D5/E6/F5", "noir"),false);
 
-		//isValidMove Premier coup invalide car joueur noir n'a pas joué
+		// Premier coup invalide car joueur noir n'a pas joué
 		assertEquals(board.isValidMove("C6/A6/B5/D5/E6/F5", "blanc"),false);
 		
-		//joue coup valide
+		// Joueur noir joue un premier coup valide
 		board.play("C6/A6/B5/D5/E6/F5", "noir");
-		//isValidMove Premier coup invalide car le joueur noir a choisi ce côté
+		
+		// Premier coup invalide car le joueur noir a choisi ce côté
 		assertEquals(board.isValidMove("C6/A6/B5/D5/E6/F5", "blanc"),false);
 		
-		//par contre on peut jouer ce coup là de l'autre côté
+		// Premier coup valide de l'autre côté
 		assertEquals(board.isValidMove("C1/A1/B2/D2/E1/F2", "blanc"),true);
+	}
+	
+	
+	@Test
+	void IsvalidClassicMovetest() {
+		game.EscampeBoard board = new game.EscampeBoard();
+		
+		// Pattern incorrect
+		assertEquals(board.isValidMove("Z1-Z2", "noir"), false);
+		
+		// Aucun coup d'init n'a été joué (dernier liséré à -1)
+		assertEquals(board.isValidMove("A1-A2", "noir"), false);
+		assertEquals(board.isValidMove("A1-A2", "blanc"), false);
+		
+		
+		board.play("A5/B5/C5/D5/E5/F5", "noir");
+		board.play("A2/B2/C2/D2/E2/F2", "blanc");
+		
+		// Pas de pièce blanche sur la case A1
+		assertEquals(board.isValidMove("A1-A2", "blanc"), false);
+		
+		// Le joueur blanc n'a pas joué son premier coup après l'initialisation
+		assertEquals(board.isValidMove("A5-A4", "noir"), false);
+		
+		//Le joueur blanc joue un coup valide
+		assertEquals(board.isValidMove("B2-B3", "blanc"), true);
+		board.play("B2-B3", "blanc");
+		
+		
+		// Un paladin sur un autre paladin
+		assertEquals(board.isValidMove("D5-D2", "noir"), false);
+		
+		// Pas de pièce noire sur la case D6
+		assertEquals(board.isValidMove("D6-D4", "noir"), false);
+		
+		// Le coup ne fait pas partie des coups possibles
+		assertEquals(board.isValidMove("C5-C3", "noir"), false);
+		
+
+	}
+	
+	@Test
+	void IsvalidSpecialMovetest() {
+		game.EscampeBoard board = new game.EscampeBoard();
+		
+		board.play("A5/B5/C5/D5/E5/F5", "noir");
+		board.play("A2/B2/C2/D2/E2/F2", "blanc");
+		
+		// On essaie de tuer la licorne adverse avec notre propre licorne
+		assertEquals(board.isValidMove("A2-A5", "blanc"), false);
+	}
+	
+	@Test
+	void EndGametest() {
+		game.EscampeBoard board = new game.EscampeBoard();
+		
+		board.play("A5/B5/C5/D5/E5/F5", "noir");
+		board.play("A2/B2/C2/D2/E2/F2", "blanc");
+		board.play("A2-A5", "blanc");
+
+		assertEquals(board.gameOver(),true);
 	}
 	
 

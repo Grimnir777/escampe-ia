@@ -174,7 +174,7 @@ public class EscampeBoard implements Partie1{
 				if(!mv.matches("^[ABCDEF][56]$")) {pattern2 = true;}
 			}
 			
-			if(pattern1 && pattern2) return false;
+			if((pattern1 && pattern2) || (!pattern1 && !pattern2)) return false;
 			
 			//check ligne
 			if(player.equals("blanc")) { // si on arrive ici le premier coup a été joué
@@ -195,14 +195,15 @@ public class EscampeBoard implements Partie1{
 			}
 			
 			int ligneCase1 = Character.getNumericValue(moveSquares[0].charAt(1)) - 1;
-			int colCase1 = -1;
-			colCase1 = this.getIndexOfCol(moveSquares[0].charAt(0));
-			if(colCase1 == -1 ) {
-				return false;
-			}
+			int colCase1 = this.getIndexOfCol(moveSquares[0].charAt(0));
 			
-			if(this.lastLisere != -1) {
-				if(this.board[ligneCase1][colCase1].lisere() != this.lastLisere) return false;
+			if(this.lastLisere == -1) {
+				if( player.equals("noir")) return false;
+			}
+			else { //lisere autre que -1 (en jeu)
+				//si la case de départ est bien sur un lisere identique au dernier coup
+				//et que le joueur ne s'est pas fait sauter son tour lastLisere = 0
+				if((this.board[ligneCase1][colCase1].lisere() != this.lastLisere) && this.lastLisere != 0) return false;
 			}
 			
 			//Test si pièce alliée sur la case de départ
@@ -221,19 +222,19 @@ public class EscampeBoard implements Partie1{
 			}
 
 			int ligneCase2 =  Character.getNumericValue(moveSquares[1].charAt(1)) - 1;
-			int colCase2 = -1;
-			colCase2 = this.getIndexOfCol(moveSquares[1].charAt(0));
-			if(colCase2 == -1 ) {
-				return false;
-			}
+			int colCase2 = this.getIndexOfCol(moveSquares[1].charAt(0));
+
 			
-			//Test si pas de pièce ennemie sur la case d'arrivée sauf si licorne
+			//Test si pas de pièce ennemie sur la case d'arrivée sauf si licorne 
+			// si licorne essaie de prendre licorne alors faux
 			String pieceOnFinalSquare = this.board[ligneCase2][colCase2].type();
 			if(player.equals("blanc")) {
 				if(pieceOnFinalSquare.equals("n") ) return false;
+				if(pieceOnFinalSquare.equals("N") && pieceOnSquare.equals("B")) return false;
 			}
 			else if (player.equals("noir")) {
 				if(pieceOnFinalSquare.equals("b") ) return false;
+				if(pieceOnFinalSquare.equals("B") && pieceOnSquare.equals("N")) return false;
 			}
 			
 			//Calcul des coups possibles depuis la position courante
@@ -255,7 +256,7 @@ public class EscampeBoard implements Partie1{
 	}
 	
 	private ArrayList<String> movesForSquare(int ligne, int col, int level, String initSquare, String player) {
-		//TODO check case précédente
+		//TODO check non retour sur case précédente
 		ArrayList<String> results = new ArrayList<String>();
 		
 		if(ligne<0 | ligne >5 | col<0 | col>5) {
@@ -420,14 +421,21 @@ public class EscampeBoard implements Partie1{
 	public static void main(String[] args) {
 
 		EscampeBoard e = new EscampeBoard();
-		e.play("C6/A6/B5/D5/E6/F5", "noir");
-		e.play("C1/A1/B1/D2/E2/F2", "blanc");
+		e.play("A5/B5/C5/D5/E5/F5", "noir");
+		e.play("A2/B2/C2/D2/E2/F2", "blanc");
+		
+		//e.play("C6/A6/B5/D5/E6/F5", "noir");
+		//e.play("C1/A1/B1/D2/E2/F2", "blanc");
 		System.out.println(e);
 		
 		String[] arr = e.possiblesMoves("blanc");
 		for (String string : arr) {
 			System.out.println("--> " + string + "\n");
 		}
+		
+		System.out.println(e.isValidMove("B2-B3", "blanc"));
+		
+		/*
 		
 		e.saveToFile("testB.txt");
 		e = new EscampeBoard();
@@ -445,6 +453,6 @@ public class EscampeBoard implements Partie1{
 		System.out.println(e.isValidMove("B6-C5","blanc"));
 		
 		e.play("A5-A4", "blanc");
-		System.out.println(e);
+		System.out.println(e);*/
 	}
 }
