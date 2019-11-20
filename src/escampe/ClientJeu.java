@@ -51,7 +51,7 @@ public class ClientJeu {
     	Socket clientSocket = null;
     	IJoueur joueur;
     	String msg, firstToken;
-    	// permet d'analyser les chaÃ®nes de caractÃ¨res lues
+    	// permet d'analyser les chaînes de caractères lues
     	StringTokenizer msgTokenizer;
     	// C'est la couleur qui doit jouer le prochain coup
     	int couleurAJouer;

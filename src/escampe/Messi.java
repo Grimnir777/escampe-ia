@@ -1,10 +1,16 @@
 package escampe;
 
+import game.EscampeBoard;
+
 public class Messi implements IJoueur {
 	  // Mais pas lors de la conversation avec l'arbitre (méthodes initJoueur et getNumJoueur)
     // Vous pouvez changer cela en interne si vous le souhaitez
     static final int BLANC = -1;
     static final int NOIR = 1;
+    
+    private int myColor;
+    private EscampeBoard board;
+    private boolean first;
 
     /**
      * L'arbitre vient de lancer votre joueur. Il lui informe par cette méthode que vous devez jouer
@@ -15,12 +21,15 @@ public class Messi implements IJoueur {
      *            La couleur dans laquelle vous allez jouer (-1=BLANC, 1=NOIR)
      */
     public void initJoueur(int mycolour) {
-    	
+    	this.first = true;
+    	this.myColor = mycolour;
+    	this.board = new EscampeBoard();
+    	this.choixMouvement();
     }
 
     // Doit retourner l'argument passé par la fonction ci-dessus (constantes BLANC ou NOIR)
     public int getNumJoueur() {
-    	return 0;
+    	return this.myColor;
     }
 
     /**
@@ -32,6 +41,20 @@ public class Messi implements IJoueur {
      *          Chaque position contient une lettre et un num?ro, par exemple:A1,B2 (coup "A1-B2")
      */
     public String choixMouvement() {
+    	if(!this.first) {
+    		//Coup classique
+    		
+    	}
+    	else {
+    		if(this.myColor == -1) { //si noir on joue direct
+    			//TODO Choix du premier coup pour le blanc
+    			board.play("C6/A6/B5/D5/E6/F5", "noir");
+    		}
+    		else {
+    			//TODO analyse du placement du noir
+    			board.play("C1/A1/B1/D2/E2/F2", "blanc");
+    		}
+    	}
     	return "";
     }
 
@@ -61,6 +84,6 @@ public class Messi implements IJoueur {
     }
 
     public String binoName() {
-    	return "";
+    	return "Messi";
     }
 }
