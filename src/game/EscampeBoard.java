@@ -36,6 +36,8 @@ public class EscampeBoard implements Partie1{
 	private boolean firstN;
 	private boolean firstChooseUp;
 	private int lastLisere;
+	int nb_coupinit_noir = 0;
+	int nb_coupinit_blanc =0;
 	
 	Map<Integer, Character> colHashMap  = new HashMap<Integer, Character>() {
 		private static final long serialVersionUID = -3708238127665825076L;
@@ -291,7 +293,26 @@ public class EscampeBoard implements Partie1{
 	* @param player le joueur qui joue, représenté par "noir" ou "blanc"
 	*/
 	public String[] possiblesMoves(String player) {		
+
+		
 		ArrayList<String> moves = new ArrayList<String>();
+	
+		if (player =="noir" && firstN==true) {
+			for(int f=0;f<7; f++) {
+				for(int h=0;h<12;h++) {
+				
+					nb_coupinit_noir++;
+				}
+			}
+			
+		}else if(player=="blanc" && firstB==true) {
+			for(int k=0;k<7; k++) {
+				for(int v=0;v<12;v++) {
+					
+					nb_coupinit_blanc++;
+				}
+			}
+		}
 		
 		for (int i = 0; i < board.length; i++) {
 			Square[] squares = board[i];
