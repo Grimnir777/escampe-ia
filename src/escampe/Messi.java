@@ -24,7 +24,6 @@ public class Messi implements IJoueur {
     	this.first = true;
     	this.myColor = mycolour;
     	this.board = new EscampeBoard();
-    	this.choixMouvement();
     }
 
     // Doit retourner l'argument passé par la fonction ci-dessus (constantes BLANC ou NOIR)
@@ -66,6 +65,12 @@ public class Messi implements IJoueur {
      *            La couleur du gagnant (BLANC=-1, NOIR=1).
      */
     public void declareLeVainqueur(int colour) {
+    	if(colour == this.myColor) {
+    		System.out.println("I'm the boss bro");
+    	}
+    	else {
+    		System.out.println("Good game bro");
+    	}
     	
     }
 
@@ -80,7 +85,12 @@ public class Messi implements IJoueur {
      * 			une chaine décrivant le mouvement:  par exemple: "A1-B2"
      */
     public void mouvementEnnemi(String coup) {
-    	
+    	if(this.myColor == 1) {
+    		this.board.play(coup, "blanc");
+    	}
+    	else {
+    		this.board.play(coup, "noir");
+    	}
     }
 
     public String binoName() {

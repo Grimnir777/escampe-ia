@@ -1,6 +1,6 @@
 package game;
 
-public class Square {
+public class Square implements Cloneable {
 	byte value;
 	
 	/* Réprésentation sous forme d'octet
@@ -24,6 +24,12 @@ public class Square {
 	
 	public Square(int lis) {
 		this.setLisere(lis);
+	}
+	
+
+	@Override
+	public Square clone() throws CloneNotSupportedException{
+		return (Square) super.clone();
 	}
 	
 	public int lisere() {
