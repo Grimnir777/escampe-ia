@@ -52,25 +52,9 @@ public class EscampeBoard implements Partie1, Cloneable{
 		this.lastLisere = -1;
 		this.squareTool = new SquareTools();
 	}
-	public EscampeBoard(EscampeBoard toCopy) {
-		this.board = toCopy.board.clone();
-		
-		this.licorneB = toCopy.licorneB;
-		this.licorneN = toCopy.licorneN;
-		
-		this.firstB = toCopy.firstB;
-		this.firstN = toCopy.firstN;
-		this.firstChooseUp = toCopy.firstChooseUp;
-		this.lastLisere = toCopy.lastLisere;
-		this.squareTool = new SquareTools();
-	}
 	
 	public Square[][] getBoard() {
 		return this.board.clone();
-	}
-	
-	public EscampeBoard copy() {
-		return new EscampeBoard(this);
 	}
 	
 	@Override
@@ -107,6 +91,10 @@ public class EscampeBoard implements Partie1, Cloneable{
 	
 	public int getPreviousLisere() {
 		return this.lastLisere;
+	}
+	
+	public boolean getFirstChooseUp() {
+		return firstChooseUp;
 	}
 	
 	@Override
@@ -507,11 +495,22 @@ public class EscampeBoard implements Partie1, Cloneable{
 		
 		
 		EscampeBoard e = new EscampeBoard();
-		e.play("B2/A1/C1/D2/E1/F2", "noir");
-		e.play("C6/A6/B5/D5/E6/F5", "blanc");
+		e.play("C6/A6/B5/D5/E6/F5", "noir");
+		e.play("C2/F1/A2/C1/D1/D2", "blanc");
+		//e.play("B2/A1/C1/D2/E1/F2", "noir");
+		//e.play("C6/A6/B5/D5/E6/F5", "blanc");
+		e.play("A2-C3", "blanc");
+		e.play("F1-F3", "blanc");
 		
+		e.play("E6-F4", "noir");
+		e.play("C3-C4", "blanc");
+		
+		System.out.println(e.getPreviousLisere());
 		String[] movesB = e.possiblesMoves("blanc");
 		String[] movesN = e.possiblesMoves("noir");
+		
+		
+		
 		System.out.println("blanc");
 		for (String string : movesB) {
 			System.out.println("--> " + string);
@@ -522,7 +521,7 @@ public class EscampeBoard implements Partie1, Cloneable{
 		}
 		
 		//System.out.println(e.possiblesMoves("blanc"));
-		AlphaBeta ab = new AlphaBeta(new Heuristique() , "blanc", "noir",3);
+		AlphaBeta ab = new AlphaBeta(new Heuristique() , "noir", "blanc",2);
 		System.out.println("meilleur coup : " + ab.meilleurCoup(e));
 		
 		
