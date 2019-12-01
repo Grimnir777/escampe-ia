@@ -1,7 +1,7 @@
 package game;
 
 public class AlphaBeta {
-	private final static int PROFMAXDEFAUT = 4;
+	private final static int PROFMAXDEFAUT = 2;
 
 	private int profMax = PROFMAXDEFAUT;
 	private Heuristique h;
@@ -22,6 +22,10 @@ public class AlphaBeta {
         this.profMax = profMaxi;
     }
     
+    public String toString() {
+        return "AlphaBeta(ProfMax="+profMax+")";
+    }
+    
    public String meilleurCoup(EscampeBoard board) {
 	   this.nbfeuilles = 0;
 	   this.nbnoeuds = 0;
@@ -29,51 +33,64 @@ public class AlphaBeta {
 	   int alpha = Integer.MIN_VALUE, beta = Integer.MAX_VALUE;
 	   int previousAlpha = alpha;
 	   for (String coupPossible : board.possiblesMoves(this.playerMax)) {
-		   System.out.println("play :" + coupPossible);
+		   System.out.print("\nplay :" + coupPossible);
+		   
 		   EscampeBoard boardCopy = board.clone();
-		   
 		   boardCopy.play(coupPossible, this.playerMax);
-		   
-		   System.out.println("before");
-		   System.out.println(board.toString());
-		   System.out.println("after");
-		   System.out.println(boardCopy.toString());
-		   
-		   
-		   int alphaCourant = MaxValue(boardCopy, alpha, beta, 1);
+
+		   int alphaCourant = MinValue(boardCopy, alpha, beta, 1);
 		   if(alphaCourant >= previousAlpha) {
 			   coupaJouer = coupPossible;
 			   previousAlpha = alphaCourant;
 		   }
 		}
-	   System.out.println("heuristique du noeud choisi : " + previousAlpha );
+	   System.out.println("\n\nheuristique du noeud choisi : " + previousAlpha );
 	   System.out.println("NB de noeuds :" + this.nbnoeuds); 
 	   System.out.println("NB de feuilles :" + this.nbfeuilles);
 	   return coupaJouer;
     }
 
-    public String toString() {
-        return "AlphaBeta(ProfMax="+profMax+")";
-    }
+   
 
     
     int MaxValue(EscampeBoard board, int alpha, int beta, int level) {
+    	System.out.print("\n");
+    	for (int i = 0; i < level; i++) {
+			System.out.print("--");
+		}
     	String[] coups = board.possiblesMoves(this.playerMax);
     	if(board.gameOver()) {
+    		System.out.print(" end of game / H :: " + this.h.eval(board, this.playerMax, board.getPreviousLisere()));
     		this.nbfeuilles++;
     		return this.h.eval(board, this.playerMax, board.getPreviousLisere());
     	}
     	if(level == this.profMax) {
+    		System.out.print(" Level max reached / H :: " + this.h.eval(board, this.playerMax, board.getPreviousLisere()));
     		this.nbnoeuds++;
+    		System.out.print("H :: " + this.h.eval(board, this.playerMax, board.getPreviousLisere()));
     		return this.h.eval(board, this.playerMax, board.getPreviousLisere());
     	}
     	this.nbnoeuds++;
+    	if(coups.length == 0) {
+    		System.out.print(" play : Passe son tour");
+    		EscampeBoard boardCopy = board.clone();
+    		boardCopy.pass();
+    		alpha = Math.max(alpha, MinValue(boardCopy, alpha, beta, level+1));
+    		if(alpha> beta) {
+    			return beta;
+    		}
+    	}
     	
     	for (String coupPossible : coups) {
+    		System.out.print("\n");
+        	for (int i = 0; i < level; i++) {
+    			System.out.print("--");
+    		}
+    		System.out.print("play : "+ coupPossible);
     		EscampeBoard boardCopy = board.clone();
     		boardCopy.play(coupPossible, this.playerMax);
     		alpha = Math.max(alpha, MinValue(boardCopy, alpha, beta, level+1));
-    		if(alpha>= beta) {
+    		if(alpha> beta) {
     			return beta;
     		}
 		}
@@ -81,22 +98,43 @@ public class AlphaBeta {
     }
     
     int MinValue(EscampeBoard board, int alpha, int beta, int level) {
+    	System.out.print("\n");
+    	for (int i = 0; i < level; i++) {
+			System.out.print("--");
+		}
+    	
     	String[] coups = board.possiblesMoves(this.playerMin);
     	if(board.gameOver()) {
+    		System.out.print(" end of game / H :: " + this.h.eval(board, this.playerMax, board.getPreviousLisere()));
     		this.nbfeuilles++;
-    		return this.h.eval(board, this.playerMin,board.getPreviousLisere());
+    		return this.h.eval(board, this.playerMax,board.getPreviousLisere());
     	}
     	if(level == this.profMax) {
+    		System.out.print(" Level max reached / H :: " + this.h.eval(board, this.playerMax, board.getPreviousLisere()));
     		this.nbnoeuds++;
-    		return this.h.eval(board, this.playerMin,board.getPreviousLisere());
+    		return this.h.eval(board, this.playerMax,board.getPreviousLisere());
     	}
     	this.nbnoeuds++;
+    	if(coups.length == 0) {
+    		System.out.print(" play : Passe son tour");
+    		EscampeBoard boardCopy = board.clone();
+    		boardCopy.pass();
+    		beta = Math.min(beta, MaxValue(boardCopy, alpha, beta, level+1));
+    		if(alpha> beta) {
+    			return alpha;
+    		}
+    	}
     	
     	for (String coupPossible : coups) {
+    		System.out.print("\n");
+        	for (int i = 0; i < level; i++) {
+    			System.out.print("--");
+    		}
+    		System.out.print("play : "+ coupPossible);
     		EscampeBoard boardCopy = board.clone();
     		boardCopy.play(coupPossible, this.playerMin);
     		beta = Math.min(beta, MaxValue(boardCopy, alpha, beta, level+1));
-    		if(alpha>= beta) {
+    		if(alpha> beta) {
     			return alpha;
     		}
 		}

@@ -450,6 +450,10 @@ public class EscampeBoard implements Partie1, Cloneable{
 	}
 	
 	
+	public void pass() {
+		this.lastLisere = 0;
+	}
+	
 	
 	
 	public static void main(String[] args) {
@@ -503,18 +507,22 @@ public class EscampeBoard implements Partie1, Cloneable{
 		
 		
 		EscampeBoard e = new EscampeBoard();
-		System.out.println(e.clone() != e);
-		System.out.println(e.clone().getClass() == e.getClass());
-		System.out.println(e.clone().equals(e));
 		e.play("B2/A1/C1/D2/E1/F2", "noir");
 		e.play("C6/A6/B5/D5/E6/F5", "blanc");
 		
 		String[] movesB = e.possiblesMoves("blanc");
+		String[] movesN = e.possiblesMoves("noir");
+		System.out.println("blanc");
 		for (String string : movesB) {
 			System.out.println("--> " + string);
 		}
+		System.out.println("noir");
+		for (String string : movesN) {
+			System.out.println("==> " + string);
+		}
+		
 		//System.out.println(e.possiblesMoves("blanc"));
-		AlphaBeta ab = new AlphaBeta(new Heuristique() , "blanc", "noir",1);
+		AlphaBeta ab = new AlphaBeta(new Heuristique() , "blanc", "noir",3);
 		System.out.println("meilleur coup : " + ab.meilleurCoup(e));
 		
 		

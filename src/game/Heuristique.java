@@ -14,13 +14,6 @@ public class Heuristique {
 	ArrayList<String> paladinsB;
 	ArrayList<String> paladinsN;
 	
-	int [][] liseres = new int[][] {{1,2,2,3,1,2},
-		{3,1,3,1,3,2},
-		{2,3,1,2,1,3},
-		{2,1,3,2,3,1},
-		{1,3,1,3,1,2},
-		{3,2,2,1,3,2}};
-	
 	public Heuristique() {
 		this.squareTool = new SquareTools();
 		this.paladinsB = new ArrayList<>();
@@ -115,12 +108,13 @@ public class Heuristique {
 				}
 			}
 		}
+		/*
 		System.out.println("lisere allie");
 		System.out.println(liseresAllies[0] + " " + liseresAllies[1] + " " + liseresAllies[2]  );
 		
 		System.out.println("lisere ennemi");
 		System.out.println(liseresEnnemis[0] + " " + liseresEnnemis[1] + " " + liseresEnnemis[2]  );
-		
+		*/
 		
 		// si dans mes coups possibles je peux jouer un coup qui me ferait gagner et que c'est à moi de jouer alors return valH = + infini 
 		// si dans les coups adverses possibles il peut jouer un coup qui le ferait gagner et que c'est à lui de jouer alors return valH = - infini
