@@ -1,6 +1,8 @@
 package escampe;
 
+import game.AlphaBeta;
 import game.EscampeBoard;
+import game.Heuristique;
 
 public class Messi implements IJoueur {
 	  // Mais pas lors de la conversation avec l'arbitre (méthodes initJoueur et getNumJoueur)
@@ -11,6 +13,7 @@ public class Messi implements IJoueur {
     private int myColor;
     private EscampeBoard board;
     private boolean first;
+    private AlphaBeta alphaBeta;
 
     /**
      * L'arbitre vient de lancer votre joueur. Il lui informe par cette méthode que vous devez jouer
@@ -24,7 +27,12 @@ public class Messi implements IJoueur {
     	this.first = true;
     	this.myColor = mycolour;
     	this.board = new EscampeBoard();
-    	this.choixMouvement();
+    	if(this.myColor == BLANC) {
+    		this.alphaBeta = new AlphaBeta(new Heuristique() , "blanc", "noir",4);
+    	}
+    	else {
+    		this.alphaBeta = new AlphaBeta(new Heuristique() , "noir", "blanc",4);
+    	}
     }
 
     // Doit retourner l'argument passé par la fonction ci-dessus (constantes BLANC ou NOIR)
@@ -43,19 +51,37 @@ public class Messi implements IJoueur {
     public String choixMouvement() {
     	if(!this.first) {
     		//Coup classique
+    		String mc = this.alphaBeta.meilleurCoup(this.board);
+    		System.out.println("meilleur coup " + mc);
+    		if(this.myColor == BLANC) {
+    			this.board.play(mc, "blanc");
+    		}
+    		else {
+    			this.board.play(mc, "noir");
+    		}
+    		return mc;
     		
     	}
     	else {
-    		if(this.myColor == -1) { //si noir on joue direct
+    		this.first=false;
+    		if(this.myColor == 1) { //si noir on joue direct
     			//TODO Choix du premier coup pour le blanc
     			board.play("C6/A6/B5/D5/E6/F5", "noir");
+    			return "C6/A6/B5/D5/E6/F5";
     		}
     		else {
     			//TODO analyse du placement du noir
-    			board.play("C1/A1/B1/D2/E2/F2", "blanc");
+    			if(this.board.getFirstChooseUp()) {
+    				board.play("C6/A6/B5/D5/E6/F5", "blanc");
+        			return "C6/A6/B5/D5/E6/F5";
+    			}
+    			else {
+    				board.play("C1/A1/B1/D2/E2/F2", "blanc");
+        			return "C1/A1/B1/D2/E2/F2";
+    			}
+    			
     		}
     	}
-    	return "";
     }
 
     /**
@@ -66,6 +92,12 @@ public class Messi implements IJoueur {
      *            La couleur du gagnant (BLANC=-1, NOIR=1).
      */
     public void declareLeVainqueur(int colour) {
+    	if(colour == this.myColor) {
+    		System.out.println("I'm the boss bro");
+    	}
+    	else {
+    		System.out.println("Good game bro");
+    	}
     	
     }
 
@@ -80,7 +112,16 @@ public class Messi implements IJoueur {
      * 			une chaine décrivant le mouvement:  par exemple: "A1-B2"
      */
     public void mouvementEnnemi(String coup) {
-    	
+    	System.out.println("before coup ennemi");
+    	System.out.println(this.board);
+    	if(this.myColor == NOIR) {
+    		this.board.play(coup, "blanc");
+    	}
+    	else {
+    		this.board.play(coup, "noir");
+    	}
+    	System.out.println("after coup ennemi");
+    	System.out.println(this.board);
     }
 
     public String binoName() {
