@@ -8,13 +8,17 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class EscampeBoard implements Partie1, Cloneable{
+public class EscampeBoard implements Partie1{
 	
 	private int [][] liseres = new int[][] {{1,2,2,3,1,2},
 											{3,1,3,1,3,2},
@@ -23,7 +27,7 @@ public class EscampeBoard implements Partie1, Cloneable{
 											{1,3,1,3,1,2},
 											{3,2,2,1,3,2}};
 											
-	protected Square[][] board;
+	private Square[][] board;
 	
 	private boolean licorneB;
 	private boolean licorneN;
@@ -35,9 +39,16 @@ public class EscampeBoard implements Partie1, Cloneable{
 	int nb_coupinit_noir = 0;
 	int nb_coupinit_blanc =0;
 	
-	private SquareTools squareTool;
-	
-	
+	Map<Integer, Character> colHashMap  = new HashMap<Integer, Character>() {
+		private static final long serialVersionUID = -3708238127665825076L;
+	{
+	    put(0,'A');
+	    put(1,'B');
+	    put(2,'C');
+	    put(3,'D');
+	    put(4,'E');
+	    put(5,'F');
+	}};
 	
 	public EscampeBoard() {
 		this.board = new Square[6][6];
@@ -52,51 +63,10 @@ public class EscampeBoard implements Partie1, Cloneable{
 		this.firstN = true;
 		this.firstB = true;
 		this.lastLisere = -1;
-		this.squareTool = new SquareTools();
 	}
 	
 	public Square[][] getBoard() {
 		return this.board.clone();
-	}
-	
-	@Override
-	public EscampeBoard clone(){
-		EscampeBoard newBoard = null;
-		 try {
-			 newBoard = (EscampeBoard) super.clone();
-		 }
-		 catch (CloneNotSupportedException e){
-		 throw new InternalError();
-		 }
-		 newBoard.board = new Square[6][6];
-		 for (int i = 0; i < board.length; i++) {
-			for (int j = 0; j < board[i].length; j++) {
-				try {
-					newBoard.board[i][j] = board[i][j].clone();
-				} catch (CloneNotSupportedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		 }
-		 newBoard.squareTool = new SquareTools();
-		 return newBoard;
-	}
-
-	
-	public boolean getLicorneBState() {
-		return this.licorneB;
-	}
-	public boolean getLicorneNState() {
-		return this.licorneN;
-	}
-	
-	public int getPreviousLisere() {
-		return this.lastLisere;
-	}
-	
-	public boolean getFirstChooseUp() {
-		return firstChooseUp;
 	}
 	
 	@Override
@@ -226,8 +196,8 @@ public class EscampeBoard implements Partie1, Cloneable{
 				if(!mv.matches("^[ABCDEF][123456]$")) return false;
 			}
 			
-			int ligneCase1 = this.squareTool.getLigne(moveSquares[0]); // Character.getNumericValue(moveSquares[0].charAt(1)) - 1;
-			int colCase1 = this.squareTool.getCol(moveSquares[0]); //this.getIndexOfCol(moveSquares[0].charAt(0));
+			int ligneCase1 = Character.getNumericValue(moveSquares[0].charAt(1)) - 1;
+			int colCase1 = this.getIndexOfCol(moveSquares[0].charAt(0));
 			
 			if(this.lastLisere == -1) {
 				if( player.equals("noir")) return false;
@@ -253,8 +223,8 @@ public class EscampeBoard implements Partie1, Cloneable{
 				}
 			}
 
-			int ligneCase2 = this.squareTool.getLigne(moveSquares[1]);//  Character.getNumericValue(moveSquares[1].charAt(1)) - 1;
-			int colCase2 = this.squareTool.getCol(moveSquares[1]); // this.getIndexOfCol(moveSquares[1].charAt(0));
+			int ligneCase2 =  Character.getNumericValue(moveSquares[1].charAt(1)) - 1;
+			int colCase2 = this.getIndexOfCol(moveSquares[1].charAt(0));
 
 			
 			//Test si pas de pièce ennemie sur la case d'arrivée sauf si licorne 
@@ -278,7 +248,7 @@ public class EscampeBoard implements Partie1, Cloneable{
 	private ArrayList<String> movesForSquare(int ligne, int col, int level, String initSquare, String player, ArrayList<String> previous) {
 		ArrayList<String> results = new ArrayList<String>();
 		
-		String nameOfSquare = this.squareTool.getStringValue(col,ligne); //this.colHashMap.get(col) + Integer.toString(ligne+1);
+		String nameOfSquare = this.colHashMap.get(col) + Integer.toString(ligne+1);
 		//Si déjà visité alors retourner array vide
 		for (String pr : previous) {
 			if(pr.equals(nameOfSquare)) return results;
@@ -294,7 +264,7 @@ public class EscampeBoard implements Partie1, Cloneable{
 		//Si on tombe sur la licorne adverse au niveau 0, alors le coup est valide
 		if(level == 0) {
 			if((player.equals("blanc") && typeOfSquare.equals("N"))  || ( player.equals("noir") && typeOfSquare.equals("B"))) {
-					String mvmt = initSquare + "-" + this.squareTool.getStringValue(col,ligne);// this.colHashMap.get(col) + Integer.toString(ligne+1);
+					String mvmt = initSquare + "-" + this.colHashMap.get(col) + Integer.toString(ligne+1);
 					if(this.isValidMove(mvmt, player)) {
 						results.add(mvmt);
 						return results;
@@ -313,7 +283,7 @@ public class EscampeBoard implements Partie1, Cloneable{
 			results.addAll(movesForSquare(ligne, col+1, level-1, initSquare,player,previous));
 		}
 		else {
-			results.add(initSquare + "-" + this.squareTool.getStringValue(col, ligne));//this.colHashMap.get(col) + Integer.toString(ligne+1));
+			results.add(initSquare + "-" + this.colHashMap.get(col) + Integer.toString(ligne+1));
 		}
 		return results;
 	}
@@ -350,7 +320,7 @@ public class EscampeBoard implements Partie1, Cloneable{
 				if(( (squares[j].type().equals("B") | squares[j].type().equals("b")) && player.equals("blanc") ) || ( (squares[j].type().equals("N") | squares[j].type().equals("n")) && player.equals("noir") ) ) { //pion qui peut etre déplacé
 					int level = squares[j].lisere();
 					if(level == this.lastLisere || this.lastLisere == -1 || this.lastLisere == 0) {
-						String start = this.squareTool.getStringValue(j,i);
+						String start = this.colHashMap.get(j) + Integer.toString(i+1);
 						ArrayList<String> previous = new ArrayList<String>();
 						previous.add(start);
 						moves.addAll(movesForSquare(i-1,j,level-1,start,player,previous));
@@ -367,33 +337,6 @@ public class EscampeBoard implements Partie1, Cloneable{
 	}
 	
 	
-	
-	public String[] possiblesMovesForHeuristique(String player) {		
-		ArrayList<String> moves = new ArrayList<String>();
-		
-		for (int i = 0; i < board.length; i++) {
-			Square[] squares = board[i];
-			for (int j = 0; j < squares.length; j++) {
-				if(( (squares[j].type().equals("B") | squares[j].type().equals("b")) && player.equals("blanc") ) || ( (squares[j].type().equals("N") | squares[j].type().equals("n")) && player.equals("noir") ) ) { //pion qui peut etre déplacé
-					int level = squares[j].lisere();
-
-					String start = this.squareTool.getStringValue(j, i);
-					ArrayList<String> previous = new ArrayList<String>();
-					previous.add(start);
-					moves.addAll(movesForSquare(i-1,j,level-1,start,player,previous));
-					moves.addAll(movesForSquare(i+1,j,level-1,start,player,previous));
-					moves.addAll(movesForSquare(i,j-1,level-1,start,player,previous));
-					moves.addAll(movesForSquare(i,j+1,level-1,start,player,previous));							
-					
-				}
-			}
-		}
-		String[] arr = new String[moves.size()]; 
-		arr = moves.toArray(arr);
-		return arr;
-	}
-	
-	
 	/** modifie le plateau en jouant le coup move avec la piece choose
 	* @param move le coup à jouer, sous la forme "C1-D1" ou "C6/A6/B5/D5/E6/F5"
 	* @param player le joueur qui joue, représenté par "noir" ou "blanc"
@@ -401,14 +344,14 @@ public class EscampeBoard implements Partie1, Cloneable{
 	public void play(String move, String player) {
 		if(move.contains("/") && move.length() == 17) {
 			List<String> moveSquares =  new ArrayList<String>(Arrays.asList(move.split("/")));
-			int ligne = this.squareTool.getLigne(moveSquares.get(0)); //Character.getNumericValue(moveSquares.get(0).charAt(1)) - 1;
+			int ligne = Character.getNumericValue(moveSquares.get(0).charAt(1)) - 1;
 			int col = -1;
-			col = this.squareTool.getCol(moveSquares.get(0)); // this.getIndexOfCol(moveSquares.get(0).charAt(0));
+			col = this.getIndexOfCol(moveSquares.get(0).charAt(0));
 			this.board[ligne][col].setSquare(player, SquareType.licorne);
 			
 			for (int i = 1; i < moveSquares.size(); i++) {
-				ligne = this.squareTool.getLigne(moveSquares.get(i)); // Character.getNumericValue(moveSquares.get(i).charAt(1)) - 1;
-				col = this.squareTool.getCol(moveSquares.get(i));// this.getIndexOfCol(moveSquares.get(i).charAt(0));
+				ligne = Character.getNumericValue(moveSquares.get(i).charAt(1)) - 1;
+				col = this.getIndexOfCol(moveSquares.get(i).charAt(0));
 				this.board[ligne][col].setSquare(player, SquareType.paladin);
 			}
 			if(player.equals("blanc")) {this.firstB = false;}
@@ -416,11 +359,10 @@ public class EscampeBoard implements Partie1, Cloneable{
 		}
 		else if(move.contains("-") && move.length() == 5) {
 			List<String> moveSquares =  new ArrayList<String>(Arrays.asList(move.split("-")));
-			
-			int ligne1 = this.squareTool.getLigne(moveSquares.get(0)); //  Character.getNumericValue(moveSquares.get(0).charAt(1)) - 1;
-			int col1 = this.squareTool.getCol(moveSquares.get(0)); //this.getIndexOfCol(moveSquares.get(0).charAt(0));
-			int ligne2 = this.squareTool.getLigne(moveSquares.get(1)); //Character.getNumericValue(moveSquares.get(1).charAt(1)) - 1;
-			int col2 = this.squareTool.getCol(moveSquares.get(1));// this.getIndexOfCol(moveSquares.get(1).charAt(0));
+			int ligne1 = Character.getNumericValue(moveSquares.get(0).charAt(1)) - 1;
+			int col1 = this.getIndexOfCol(moveSquares.get(0).charAt(0));
+			int ligne2 = Character.getNumericValue(moveSquares.get(1).charAt(1)) - 1;
+			int col2 = this.getIndexOfCol(moveSquares.get(1).charAt(0));
 			
 			if(player.equals("blanc")) {
 				String typeOfPiece = this.board[ligne1][col1].type();
@@ -458,15 +400,18 @@ public class EscampeBoard implements Partie1, Cloneable{
 		return !this.licorneB | !this.licorneN;
 	}
 	
-	
-	public void pass() {
-		this.lastLisere = 0;
+	private int getIndexOfCol(char charToFind) {
+		int r = -1;
+		for (Entry<Integer, Character> entry : this.colHashMap.entrySet()) {
+	        if (Objects.equals(charToFind, entry.getValue())) {
+	        	r = entry.getKey();
+	        }
+	    }
+		return r;
 	}
 	
 	
-	
 	public static void main(String[] args) {
-		/*
 		// Quelques tests basiques, pour voir plus de test voir le package test (junit tests)
 		EscampeBoard e = new EscampeBoard();
 		
@@ -511,42 +456,5 @@ public class EscampeBoard implements Partie1, Cloneable{
 		e.play("A1-A2", "blanc");
 		System.out.println("\n-------- Coup joué A1-A2 par le joueur blanc --------");
 		System.out.println(e);
-		*/
-		
-		
-		
-		EscampeBoard e = new EscampeBoard();
-		e.play("C6/A6/B5/D5/E6/F5", "noir");
-		e.play("C2/F1/A2/C1/D1/D2", "blanc");
-		//e.play("B2/A1/C1/D2/E1/F2", "noir");
-		//e.play("C6/A6/B5/D5/E6/F5", "blanc");
-		e.play("A2-C3", "blanc");
-		e.play("F1-F3", "blanc");
-		
-		e.play("E6-F4", "noir");
-		e.play("C3-C4", "blanc");
-		
-		System.out.println(e.getPreviousLisere());
-		String[] movesB = e.possiblesMoves("blanc");
-		String[] movesN = e.possiblesMoves("noir");
-		
-		
-		
-		System.out.println("blanc");
-		for (String string : movesB) {
-			System.out.println("--> " + string);
-		}
-		System.out.println("noir");
-		for (String string : movesN) {
-			System.out.println("==> " + string);
-		}
-		
-		//System.out.println(e.possiblesMoves("blanc"));
-		AlphaBeta ab = new AlphaBeta(new Heuristique() , "noir", "blanc",2);
-		System.out.println("meilleur coup : " + ab.meilleurCoup(e));
-		
-		
-
-		
 	}
 }
