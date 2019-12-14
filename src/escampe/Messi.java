@@ -80,7 +80,16 @@ public class Messi implements IJoueur {
      * 			une chaine décrivant le mouvement:  par exemple: "A1-B2"
      */
     public void mouvementEnnemi(String coup) {
+<<<<<<< HEAD
     	
+=======
+    	if(this.myColor == 1) {
+    		this.board.play(coup, "blanc");
+    	}
+    	else {
+    		this.board.play(coup, "noir");
+    	}
+>>>>>>> parent of ef70786... First win of IA :pray:
     }
 
     public String binoName() {

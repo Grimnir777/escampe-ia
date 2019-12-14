@@ -64,12 +64,67 @@ public class EscampeBoard implements Partie1{
 		this.firstB = true;
 		this.lastLisere = -1;
 	}
+	public EscampeBoard(EscampeBoard toCopy) {
+		this.board = toCopy.board.clone();
+		
+		this.licorneB = toCopy.licorneB;
+		this.licorneN = toCopy.licorneN;
+		
+		this.firstB = toCopy.firstB;
+		this.firstN = toCopy.firstN;
+		this.firstChooseUp = toCopy.firstChooseUp;
+		this.lastLisere = toCopy.lastLisere;
+		this.squareTool = new SquareTools();
+	}
 	
 	public Square[][] getBoard() {
 		return this.board.clone();
 	}
 	
+	public EscampeBoard copy() {
+		return new EscampeBoard(this);
+	}
+	
 	@Override
+<<<<<<< HEAD
+=======
+	public EscampeBoard clone(){
+		EscampeBoard newBoard = null;
+		 try {
+			 newBoard = (EscampeBoard) super.clone();
+		 }
+		 catch (CloneNotSupportedException e){
+		 throw new InternalError();
+		 }
+		 newBoard.board = new Square[6][6];
+		 for (int i = 0; i < board.length; i++) {
+			for (int j = 0; j < board[i].length; j++) {
+				try {
+					newBoard.board[i][j] = board[i][j].clone();
+				} catch (CloneNotSupportedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		 }
+		 newBoard.squareTool = new SquareTools();
+		 return newBoard;
+	}
+
+	
+	public boolean getLicorneBState() {
+		return this.licorneB;
+	}
+	public boolean getLicorneNState() {
+		return this.licorneN;
+	}
+	
+	public int getPreviousLisere() {
+		return this.lastLisere;
+	}
+	
+	@Override
+>>>>>>> parent of ef70786... First win of IA :pray:
 	public String toString() {
 		String r = "%  ABCDEF\n";
 		for (int i = 0; i < board.length; i++) {
@@ -456,5 +511,34 @@ public class EscampeBoard implements Partie1{
 		e.play("A1-A2", "blanc");
 		System.out.println("\n-------- Coup joué A1-A2 par le joueur blanc --------");
 		System.out.println(e);
+<<<<<<< HEAD
+=======
+		*/
+		
+		
+		
+		EscampeBoard e = new EscampeBoard();
+		e.play("B2/A1/C1/D2/E1/F2", "noir");
+		e.play("C6/A6/B5/D5/E6/F5", "blanc");
+		
+		String[] movesB = e.possiblesMoves("blanc");
+		String[] movesN = e.possiblesMoves("noir");
+		System.out.println("blanc");
+		for (String string : movesB) {
+			System.out.println("--> " + string);
+		}
+		System.out.println("noir");
+		for (String string : movesN) {
+			System.out.println("==> " + string);
+		}
+		
+		//System.out.println(e.possiblesMoves("blanc"));
+		AlphaBeta ab = new AlphaBeta(new Heuristique() , "blanc", "noir",3);
+		System.out.println("meilleur coup : " + ab.meilleurCoup(e));
+		
+		
+
+		
+>>>>>>> parent of ef70786... First win of IA :pray:
 	}
 }
