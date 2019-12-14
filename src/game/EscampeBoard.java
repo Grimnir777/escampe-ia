@@ -35,6 +35,40 @@ public class EscampeBoard implements Partie1, Cloneable{
 	
 	private SquareTools squareTool;
 	
+	private ArrayList<String> caseFirstUp = new ArrayList<String>() {
+		private static final long serialVersionUID = -3708238127665825076L;
+	{
+	    add("A1");
+	    add("B1");
+	    add("C1");
+	    add("D1");
+	    add("E1");
+	    add("F1");
+	    add("A2");
+	    add("B2");
+	    add("C2");
+	    add("D2");
+	    add("E2");
+	    add("F2");
+	}};
+	
+	private ArrayList<String> caseFirstDown = new ArrayList<String>() {
+		private static final long serialVersionUID = -4694394783351557969L;
+	{
+	    add("A5");
+	    add("B5");
+	    add("C5");
+	    add("D5");
+	    add("E5");
+	    add("F5");
+	    add("A6");
+	    add("B6");
+	    add("C6");
+	    add("D6");
+	    add("E6");
+	    add("F6");
+	}};
+	
 	
 	
 	public EscampeBoard() {
@@ -72,7 +106,6 @@ public class EscampeBoard implements Partie1, Cloneable{
 				try {
 					newBoard.board[i][j] = board[i][j].clone();
 				} catch (CloneNotSupportedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -322,6 +355,18 @@ public class EscampeBoard implements Partie1, Cloneable{
 	*/
 	public String[] possiblesMoves(String player) {		
 		ArrayList<String> moves = new ArrayList<String>();
+		if(this.firstN &&  player.equals("noir")) {
+			moves.addAll(this.possibleMovesFirst(this.caseFirstDown));
+			moves.addAll(this.possibleMovesFirst(this.caseFirstUp));
+		}
+		if(this.firstB && !this.firstN && player.equals("blanc")) {
+			if(this.firstChooseUp) {
+				moves.addAll(this.possibleMovesFirst(this.caseFirstDown));
+			} else {
+				moves.addAll(this.possibleMovesFirst(this.caseFirstUp));
+			}
+		}
+		
 		
 		for (int i = 0; i < board.length; i++) {
 			Square[] squares = board[i];
@@ -343,6 +388,21 @@ public class EscampeBoard implements Partie1, Cloneable{
 		String[] arr = new String[moves.size()]; 
 		arr = moves.toArray(arr);
 		return arr;
+	}
+	
+	public ArrayList<String> possibleMovesFirst(ArrayList<String> cases) {
+		ArrayList<String> combinaisons = new ArrayList<String>();
+		for (int u = 0; u < cases.size(); u++) {
+			ArrayList<String> newArray = (ArrayList<String>) cases.clone();
+			newArray.remove(u);
+			for(int i=  0; i <= 6; i++)
+	        for(int j=i+1; j <= 7; j++)
+	        for(int k=j+1; k <= 8; k++)
+	        for(int l=k+1; l <= 9; l++)
+	        for(int m=l+1; m <= 10; m++)
+        	combinaisons.add(cases.get(u) + "/" + newArray.get(i) + "/" + newArray.get(j)  + "/"+ newArray.get(k)  + "/"+ newArray.get(l) + "/" + newArray.get(m)  );
+		}
+		return combinaisons;     
 	}
 	
 	
@@ -521,11 +581,10 @@ public class EscampeBoard implements Partie1, Cloneable{
 		}
 		
 		//System.out.println(e.possiblesMoves("blanc"));
-		AlphaBeta ab = new AlphaBeta(new Heuristique() , "noir", "blanc",2);
+		AlphaBeta ab = new AlphaBeta(new Heuristique() , "noir", "blanc",6);
+		long begin = System.currentTimeMillis();
 		System.out.println("meilleur coup : " + ab.meilleurCoup(e));
-		
-		
-
+		System.out.println("Time of computing: " + Long.toString((System.currentTimeMillis() - begin)) +"ms" );
 		
 	}
 }
