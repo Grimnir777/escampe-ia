@@ -33,6 +33,9 @@ public class EscampeBoard implements Partie1, Cloneable{
 	private boolean firstChooseUp;
 	private int lastLisere;
 	
+	private int[] liseresBlanc= {0,0,0};
+	private int[] liseresNoir = {0,0,0};
+	
 	private SquareTools squareTool;
 	
 	private ArrayList<String> caseFirstUp = new ArrayList<String>() {
@@ -87,9 +90,25 @@ public class EscampeBoard implements Partie1, Cloneable{
 		this.squareTool = new SquareTools();
 	}
 	
+	/*
+	 * Getter & Setters
+	 * */
+	
 	public Square[][] getBoard() {
 		return this.board.clone();
 	}
+	
+	public int[] getLiseresBlanc() {
+		return liseresBlanc;
+	}
+
+	public int[] getLiseresNoir() {
+		return liseresNoir;
+	}
+	
+	/*
+	 * Methode clone
+	 * */
 	
 	@Override
 	public EscampeBoard clone(){
@@ -98,7 +117,7 @@ public class EscampeBoard implements Partie1, Cloneable{
 			 newBoard = (EscampeBoard) super.clone();
 		 }
 		 catch (CloneNotSupportedException e){
-		 throw new InternalError();
+			 throw new InternalError();
 		 }
 		 newBoard.board = new Square[6][6];
 		 for (int i = 0; i < board.length; i++) {
@@ -257,8 +276,8 @@ public class EscampeBoard implements Partie1, Cloneable{
 				if(!mv.matches("^[ABCDEF][123456]$")) return false;
 			}
 			
-			int ligneCase1 = this.squareTool.getLigne(moveSquares[0]); // Character.getNumericValue(moveSquares[0].charAt(1)) - 1;
-			int colCase1 = this.squareTool.getCol(moveSquares[0]); //this.getIndexOfCol(moveSquares[0].charAt(0));
+			int ligneCase1 = this.squareTool.getLigne(moveSquares[0]);
+			int colCase1 = this.squareTool.getCol(moveSquares[0]);
 			
 			if(this.lastLisere == -1) {
 				if( player.equals("noir")) return false;
@@ -284,8 +303,8 @@ public class EscampeBoard implements Partie1, Cloneable{
 				}
 			}
 
-			int ligneCase2 = this.squareTool.getLigne(moveSquares[1]);//  Character.getNumericValue(moveSquares[1].charAt(1)) - 1;
-			int colCase2 = this.squareTool.getCol(moveSquares[1]); // this.getIndexOfCol(moveSquares[1].charAt(0));
+			int ligneCase2 = this.squareTool.getLigne(moveSquares[1]);
+			int colCase2 = this.squareTool.getCol(moveSquares[1]); 
 
 			
 			//Test si pas de pièce ennemie sur la case d'arrivée sauf si licorne 
@@ -309,7 +328,7 @@ public class EscampeBoard implements Partie1, Cloneable{
 	private ArrayList<String> movesForSquare(int ligne, int col, int level, String initSquare, String player, ArrayList<String> previous) {
 		ArrayList<String> results = new ArrayList<String>();
 		
-		String nameOfSquare = this.squareTool.getStringValue(col,ligne); //this.colHashMap.get(col) + Integer.toString(ligne+1);
+		String nameOfSquare = this.squareTool.getStringValue(col,ligne);
 		//Si déjà visité alors retourner array vide
 		for (String pr : previous) {
 			if(pr.equals(nameOfSquare)) return results;
@@ -325,7 +344,7 @@ public class EscampeBoard implements Partie1, Cloneable{
 		//Si on tombe sur la licorne adverse au niveau 0, alors le coup est valide
 		if(level == 0) {
 			if((player.equals("blanc") && typeOfSquare.equals("N"))  || ( player.equals("noir") && typeOfSquare.equals("B"))) {
-					String mvmt = initSquare + "-" + this.squareTool.getStringValue(col,ligne);// this.colHashMap.get(col) + Integer.toString(ligne+1);
+					String mvmt = initSquare + "-" + this.squareTool.getStringValue(col,ligne);
 					if(this.isValidMove(mvmt, player)) {
 						results.add(mvmt);
 						return results;
@@ -344,7 +363,7 @@ public class EscampeBoard implements Partie1, Cloneable{
 			results.addAll(movesForSquare(ligne, col+1, level-1, initSquare,player,previous));
 		}
 		else {
-			results.add(initSquare + "-" + this.squareTool.getStringValue(col, ligne));//this.colHashMap.get(col) + Integer.toString(ligne+1));
+			results.add(initSquare + "-" + this.squareTool.getStringValue(col, ligne));
 		}
 		return results;
 	}
@@ -439,27 +458,36 @@ public class EscampeBoard implements Partie1, Cloneable{
 	*/
 	public void play(String move, String player) {
 		if(move.contains("/") && move.length() == 17) {
+			int[] liseres = {0,0,0};
 			List<String> moveSquares =  new ArrayList<String>(Arrays.asList(move.split("/")));
-			int ligne = this.squareTool.getLigne(moveSquares.get(0)); //Character.getNumericValue(moveSquares.get(0).charAt(1)) - 1;
+			int ligne = this.squareTool.getLigne(moveSquares.get(0));
 			int col = -1;
-			col = this.squareTool.getCol(moveSquares.get(0)); // this.getIndexOfCol(moveSquares.get(0).charAt(0));
+			col = this.squareTool.getCol(moveSquares.get(0));
 			this.board[ligne][col].setSquare(player, SquareType.licorne);
-			
+			liseres[this.board[ligne][col].lisere()-1]++;
 			for (int i = 1; i < moveSquares.size(); i++) {
-				ligne = this.squareTool.getLigne(moveSquares.get(i)); // Character.getNumericValue(moveSquares.get(i).charAt(1)) - 1;
-				col = this.squareTool.getCol(moveSquares.get(i));// this.getIndexOfCol(moveSquares.get(i).charAt(0));
+				ligne = this.squareTool.getLigne(moveSquares.get(i));
+				col = this.squareTool.getCol(moveSquares.get(i));
 				this.board[ligne][col].setSquare(player, SquareType.paladin);
+				liseres[this.board[ligne][col].lisere()-1]++;
 			}
-			if(player.equals("blanc")) {this.firstB = false;}
-			else if(player.equals("noir")) {this.firstN = false;}
+			
+			if(player.equals("blanc")) {
+				this.firstB = false;
+				this.liseresBlanc = liseres.clone();
+			}
+			else if(player.equals("noir")) {
+				this.firstN = false;
+				this.liseresNoir = liseres.clone();
+			}
 		}
 		else if(move.contains("-") && move.length() == 5) {
 			List<String> moveSquares =  new ArrayList<String>(Arrays.asList(move.split("-")));
 			
-			int ligne1 = this.squareTool.getLigne(moveSquares.get(0)); //  Character.getNumericValue(moveSquares.get(0).charAt(1)) - 1;
-			int col1 = this.squareTool.getCol(moveSquares.get(0)); //this.getIndexOfCol(moveSquares.get(0).charAt(0));
-			int ligne2 = this.squareTool.getLigne(moveSquares.get(1)); //Character.getNumericValue(moveSquares.get(1).charAt(1)) - 1;
-			int col2 = this.squareTool.getCol(moveSquares.get(1));// this.getIndexOfCol(moveSquares.get(1).charAt(0));
+			int ligne1 = this.squareTool.getLigne(moveSquares.get(0)); 
+			int col1 = this.squareTool.getCol(moveSquares.get(0));
+			int ligne2 = this.squareTool.getLigne(moveSquares.get(1));
+			int col2 = this.squareTool.getCol(moveSquares.get(1));
 			
 			if(player.equals("blanc")) {
 				String typeOfPiece = this.board[ligne1][col1].type();
@@ -472,6 +500,8 @@ public class EscampeBoard implements Partie1, Cloneable{
 				if(typeOfPiece.equals("B")) {
 					this.board[ligne2][col2].setSquare(player, SquareType.licorne);
 				}
+				liseresBlanc[this.board[ligne1][col1].lisere()-1]--;
+				liseresBlanc[this.board[ligne2][col2].lisere()-1]++;
 			}
 			else if (player.equals("noir"))	{
 				String typeOfPiece = this.board[ligne1][col1].type();
@@ -484,7 +514,10 @@ public class EscampeBoard implements Partie1, Cloneable{
 				if(typeOfPiece.equals("N")) {
 					this.board[ligne2][col2].setSquare(player, SquareType.licorne);
 				}
+				liseresNoir[this.board[ligne1][col1].lisere()-1]--;
+				liseresNoir[this.board[ligne2][col2].lisere()-1]++;
 			}
+			
 			this.lastLisere = this.board[ligne2][col2].lisere();
 			this.board[ligne1][col1].resetSquare();
 		}
@@ -495,6 +528,12 @@ public class EscampeBoard implements Partie1, Cloneable{
 	*/
 	public boolean gameOver() {
 		return !this.licorneB | !this.licorneN;
+	}
+	
+	public int checkStatus() {
+		if(!this.licorneB) return -1;
+		if(!this.licorneN) return 1;
+		return 0;
 	}
 	
 	
@@ -552,39 +591,62 @@ public class EscampeBoard implements Partie1, Cloneable{
 		System.out.println(e);
 		*/
 		
-		
-		
 		EscampeBoard e = new EscampeBoard();
-		e.play("C6/A6/B5/D5/E6/F5", "noir");
+		e.play("B6/A5/C5/D5/E6/F6", "noir");
 		e.play("C2/F1/A2/C1/D1/D2", "blanc");
-		//e.play("B2/A1/C1/D2/E1/F2", "noir");
-		//e.play("C6/A6/B5/D5/E6/F5", "blanc");
-		e.play("A2-C3", "blanc");
-		e.play("F1-F3", "blanc");
 		
-		e.play("E6-F4", "noir");
-		e.play("C3-C4", "blanc");
-		
-		System.out.println(e.getPreviousLisere());
-		String[] movesB = e.possiblesMoves("blanc");
-		String[] movesN = e.possiblesMoves("noir");
-		
+		System.out.println("Placement initial");
+		for (int lis : e.getLiseresNoir()) {
+			System.out.println("LIS Noir  ==> " + lis);
+		}
+		for (int lis : e.getLiseresBlanc()) {
+			System.out.println("LIS Blanc ==> " + lis);
+		}
 		
 		
 		System.out.println("blanc");
-		for (String string : movesB) {
+		for (String string : e.possiblesMoves("blanc")) {
 			System.out.println("--> " + string);
 		}
-		System.out.println("noir");
-		for (String string : movesN) {
-			System.out.println("==> " + string);
+		System.out.println("\n-------- Coup joué C2-B4 par le joueur blanc --------");
+		e.play("C2-B4", "blanc");
+		for (int lis : e.getLiseresBlanc()) {
+			System.out.println("LIS Blanc ==> " + lis);
 		}
 		
-		//System.out.println(e.possiblesMoves("blanc"));
-		AlphaBeta ab = new AlphaBeta(new Heuristique() , "noir", "blanc",6);
+		
+		System.out.println("noir");
+		for (String string : e.possiblesMoves("noir")) {
+			System.out.println("==> " + string);
+		}
+		System.out.println("\n-------- Coup joué A5-B5 par le joueur noir --------");
+		e.play("A5-B5", "noir");
+		for (int lis : e.getLiseresNoir()) {
+			System.out.println("LIS Noir  ==> " + lis);
+		}
+		
+		
+		
+
+		
+		/*
+		AlphaBeta ab = new AlphaBeta(new AdvancedHeuristique() , "noir", "blanc",6);
 		long begin = System.currentTimeMillis();
 		System.out.println("meilleur coup : " + ab.meilleurCoup(e));
 		System.out.println("Time of computing: " + Long.toString((System.currentTimeMillis() - begin)) +"ms" );
+		
+
+		AlphaBeta ab2 = new AlphaBeta(new OptimusHeuritisque() , "noir", "blanc",6);
+		begin = System.currentTimeMillis();
+		System.out.println("meilleur coup : " + ab2.meilleurCoup(e));
+		System.out.println("Time of computing: " + Long.toString((System.currentTimeMillis() - begin)) +"ms" );
+		
+		
+		AlphaBeta ab3 = new AlphaBeta(new BasicHeuristique() , "noir", "blanc",6);
+		begin = System.currentTimeMillis();
+		System.out.println("meilleur coup : " + ab3.meilleurCoup(e));
+		System.out.println("Time of computing: " + Long.toString((System.currentTimeMillis() - begin)) +"ms" );
+		*/
 		
 	}
 }

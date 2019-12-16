@@ -1,6 +1,8 @@
 package machineLearning;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import game.EscampeBoard;
 
@@ -17,9 +19,19 @@ public class Node {
 	// specific
 	public EscampeBoard board;
 	
-	
 	public Node(boolean playedByIA, EscampeBoard board) {
 		this.leef = false;
+		this.terminal = false; 
+		this.playedByIA = playedByIA; 
+		this.parent = null;
+		this.childs = new ArrayList<Node>();
+		this.nbVisits = 0;
+		this.earningSum = 0.0;
+		this.board = board.clone();
+	}
+	
+	public Node(boolean playedByIA, EscampeBoard board, boolean leef) {
+		this.leef = leef;
 		this.terminal = false; 
 		this.playedByIA = playedByIA; 
 		this.parent = null;
@@ -36,21 +48,20 @@ public class Node {
 		while (!node.leef) {
 			node = node.select();
 		}
-		this.rollOut(node);
+		node.rollOut(node);
 	}
 	
-	
+	// from the current Node choose the best child
 	public Node select() {
 		Node choosenNode = null;
 		double bestValue = Double.MIN_VALUE;
-		double c = Math.sqrt(2);
 		for (Node child : this.childs) {
 			double value;
 			if(child.nbVisits == 0) {
-				value = Math.random() + c * Math.sqrt(Math.log(this.nbVisits+1));
+				value = Math.random() + 1.41 * Math.sqrt(Math.log(this.nbVisits+1));
 			}
 			else {
-				value = (child.earningSum / child.nbVisits) + (c * Math.sqrt(Math.log(this.nbVisits+1)/child.nbVisits));
+				value = (child.earningSum / child.nbVisits) + (1.41 * Math.sqrt(Math.log(this.nbVisits+1)/child.nbVisits));
 			}
 			
 			if (value > bestValue) {
@@ -58,7 +69,12 @@ public class Node {
 				bestValue = value;
 			}
 		}
-		choosenNode.parent = this;
+		if(choosenNode != null) {
+			choosenNode.parent = this;			
+		}
+		else {
+			return this;
+		}
 		return choosenNode;
 	}
 	
@@ -66,10 +82,11 @@ public class Node {
 		childs = null;
 		if(!node.terminal) {
 			node.expand();
-			Node child = winningNode(node.playedByIA);
+			Node child = winningNode(node, node.playedByIA);
 			if (child == null) {
 				child = node.childs.get((int) Math.random() * node.childs.size());
 			}
+			child.parent = node;
 			if (!child.terminal) {
 				this.rollOut(child);
 			}
@@ -96,22 +113,20 @@ public class Node {
 	}
 	
 	public void value() {
-		if(this.playedByIA) {
-			if(this.board.gameOver() && this.board.getLicorneNState()) this.earningSum=100;
-			if(this.board.gameOver() && this.board.getLicorneBState()) this.earningSum=-100;
-		} else {
-			if(this.board.gameOver() && this.board.getLicorneBState()) this.earningSum=100;
-			if(this.board.gameOver() && this.board.getLicorneNState()) this.earningSum=-100;
-		}
+		if(this.board.gameOver() && !this.board.getLicorneNState()) this.earningSum=100;
+		if(this.board.gameOver() && !this.board.getLicorneBState()) this.earningSum=-100;
 	}
 	
-	public Node winningNode(boolean isIA) {
-		for (Node node : childs) {
-			if(isIA && node.board.gameOver() && node.board.getLicorneNState()) {
-				return node;
+	public Node winningNode(Node node, boolean isIA) {
+
+		for (Node n : node.childs) {
+			if(isIA && !n.board.getLicorneBState()) {
+				n.terminal = true;
+				return n;
 			}
-			if(!isIA && node.board.gameOver() && node.board.getLicorneBState()) {
-				return node;
+			if(!isIA && !n.board.getLicorneNState()) {
+				n.terminal = true;
+				return n;
 			}
 		}
 		return null;
@@ -121,12 +136,34 @@ public class Node {
 	public ArrayList<Node> findChilds() {
 		ArrayList<Node> childsOfNode = new ArrayList<Node>();
 		String player = this.playedByIA? "noir":"blanc";
-		for (String move : this.board.possiblesMoves(player)) {
+		
+		String[] possibleMoves = this.board.possiblesMoves(player);
+		if(possibleMoves.length == 0) {
+			EscampeBoard boardCP = this.board.clone();
+			boardCP.pass();
+			Node n = new Node(!this.playedByIA,boardCP,true);
+			childsOfNode.add(n);
+		}
+		for (String move : possibleMoves) {
 			EscampeBoard boardCP = this.board.clone();
 			boardCP.play(move, player);
-			Node n = new Node(!this.playedByIA,boardCP);
+			Node n = new Node(!this.playedByIA,boardCP,true);
 			childsOfNode.add(n);
 		}
 		return childsOfNode;
+	}
+	
+	public Node findBestNode() {
+		Node returnNode = this.childs.get(0);
+		double bestValue = returnNode.earningSum;
+		
+		for (Node child : this.childs) {
+			double value = child.earningSum;
+			if (value > bestValue) {
+				returnNode = child;
+				bestValue = value;
+			}
+		}
+		return returnNode;
 	}
 }

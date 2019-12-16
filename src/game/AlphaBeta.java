@@ -11,7 +11,7 @@ public class AlphaBeta {
 	private int nbnoeuds;
 	private int nbfeuilles;
 
-	public AlphaBeta(Heuristique h, String playerMax, String playerMin) {
+	public AlphaBeta(AdvancedHeuristique h, String playerMax, String playerMin) {
 	    this(h,playerMax,playerMin,PROFMAXDEFAUT);
 	}
 
@@ -64,12 +64,12 @@ public class AlphaBeta {
     	if(board.gameOver()) {
     		//System.out.print(" end of game / H :: " + this.h.eval(board, this.playerMax, board.getPreviousLisere()));
     		this.nbfeuilles++;
-    		return this.h.eval(board, this.playerMax, board.getPreviousLisere());
+    		return this.h.eval(board, this.playerMax);
     	}
     	if(level == this.profMax) {
     		//System.out.print(" Level max reached / H :: " + this.h.eval(board, this.playerMax, board.getPreviousLisere()));
     		this.nbnoeuds++;
-    		return this.h.eval(board, this.playerMax, board.getPreviousLisere());
+    		return this.h.eval(board, this.playerMax);
     	}
     	this.nbnoeuds++;
     	if(coups.length == 0) {
@@ -109,12 +109,12 @@ public class AlphaBeta {
     	if(board.gameOver()) {
     		//System.out.print(" end of game / H :: " + this.h.eval(board, this.playerMax, board.getPreviousLisere()));
     		this.nbfeuilles++;
-    		return this.h.eval(board, this.playerMax,board.getPreviousLisere());
+    		return this.h.eval(board, this.playerMax);
     	}
     	if(level == this.profMax) {
     		//System.out.print(" Level max reached / H :: " + this.h.eval(board, this.playerMax, board.getPreviousLisere()));
     		this.nbnoeuds++;
-    		return this.h.eval(board, this.playerMax,board.getPreviousLisere());
+    		return this.h.eval(board, this.playerMax);
     	}
     	this.nbnoeuds++;
     	if(coups.length == 0) {
