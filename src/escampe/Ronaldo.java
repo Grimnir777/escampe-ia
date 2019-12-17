@@ -1,10 +1,10 @@
 package escampe;
 
 import algos.AlphaBeta;
-import algos.OptimusHeuristique;
+import algos.BasicHeuristique;
 import game.EscampeBoard;
 
-public class Messi implements IJoueur {
+public class Ronaldo implements IJoueur {
 	  // Mais pas lors de la conversation avec l'arbitre (méthodes initJoueur et getNumJoueur)
     // Vous pouvez changer cela en interne si vous le souhaitez
     static final int BLANC = -1;
@@ -14,8 +14,7 @@ public class Messi implements IJoueur {
     private EscampeBoard board;
     private boolean first;
     private AlphaBeta alphaBeta;
-    private String firstMove;
-    private long currentTime;
+
     /**
      * L'arbitre vient de lancer votre joueur. Il lui informe par cette méthode que vous devez jouer
      * dans cette couleur. Vous pouvez utiliser cette m?thode abstraite, ou la méthode constructeur
@@ -29,10 +28,10 @@ public class Messi implements IJoueur {
     	this.myColor = mycolour;
     	this.board = new EscampeBoard();
     	if(this.myColor == BLANC) {
-    		this.alphaBeta = new AlphaBeta(new OptimusHeuristique() , "blanc", "noir",6);
+    		this.alphaBeta = new AlphaBeta(new BasicHeuristique() , "blanc", "noir",6);
     	}
     	else {
-    		this.alphaBeta = new AlphaBeta(new OptimusHeuristique() , "noir", "blanc",6);
+    		this.alphaBeta = new AlphaBeta(new BasicHeuristique() , "noir", "blanc",6);
     	}
     }
 
@@ -50,64 +49,35 @@ public class Messi implements IJoueur {
      *          Chaque position contient une lettre et un num?ro, par exemple:A1,B2 (coup "A1-B2")
      */
     public String choixMouvement() {
-    	long beginTime = System.currentTimeMillis();
-    	String move;
     	if(!this.first) {
     		//Coup classique
-    		move = this.alphaBeta.meilleurCoup(this.board);
-    		System.out.println("meilleur coup " + move);
+    		String mc = this.alphaBeta.meilleurCoup(this.board);
+    		System.out.println("meilleur coup " + mc);
     		if(this.myColor == BLANC) {
-    			this.board.play(move, "blanc");
+    			this.board.play(mc, "blanc");
     		}
     		else {
-    			this.board.play(move, "noir");
+    			this.board.play(mc, "noir");
     		}
+    		return mc;
     	}
     	else {
     		this.first=false;
-    		if(this.myColor == NOIR) { //si noir on joue direct
-    			move= "C6/A6/B5/D5/E6/F5";
-    			board.play(move, "noir");
-    			
+    		if(this.myColor == 1) { //si noir on joue direct
+    			board.play("C6/A6/B5/D5/E6/F5", "noir");
+    			return "C6/A6/B5/D5/E6/F5";
     		}
     		else {
-    			String licorneAdverse = this.firstMove.substring(0,2);
-    			System.out.println(this.board.getFirstChooseDown());
-    			if(this.board.getFirstChooseDown()) { // adversaire en bas ligne 5 et 6
-    				if(licorneAdverse.equals("A5")) {
-    					move="C1/A2/B2/D2/E2/F2";
-    				}
-    				else if(licorneAdverse.equals("C5")) {
-    					move="B1/C2/A2/D2/E2/F2";
-    				}
-					else if(licorneAdverse.equals("E5")) {
-						move="C1/A2/B2/D2/E2/F2";
-    				}
-    				else {
-    					move="C1/A2/B2/D2/E2/F2";
-    				}
-    				
+    			if(this.board.getFirstChooseDown()) {
+    				board.play("C1/A1/B1/D2/E2/F2", "blanc");
+        			return "C1/A2/B2/D2/E2/F2";
     			}
-    			else { // adversaire en haut ligne 1 et 2
-    				//Si licorne adverse est en B2 ou en D2 on peut l'avoir en un coup par la suite avec cette config
-    				//Sinon elle est �quilibr�e
-    				move="C6/A5/B5/D5/E5/F6";    				
+    			else {
+    				board.play("C6/A6/B5/D5/E6/F5", "blanc");
+        			return "C6/A6/B5/D5/E6/F5";
     			}
-    			board.play(move, "blanc");
     		}
     	}
-    	long endTime = System.currentTimeMillis() - beginTime;
-		System.out.println("Le calcul a pris : " + endTime + " ms");
-		this.currentTime += endTime;
-		System.out.println("Total time: " + this.currentTime + " ms" );
-		if(this.currentTime/1000>200) {
-			System.out.println("i've change prof");
-			this.alphaBeta.setProfMax(4);
-			if(this.currentTime/1000>300) {
-				this.alphaBeta.setProfMax(2);
-			}
-		}
-    	return move;    	
     }
 
     /**
@@ -138,7 +108,6 @@ public class Messi implements IJoueur {
      * 			une chaine décrivant le mouvement:  par exemple: "A1-B2"
      */
     public void mouvementEnnemi(String coup) {
-    	this.firstMove = coup;
     	if(this.myColor == NOIR) {
     		this.board.play(coup, "blanc");
     	}
@@ -148,10 +117,9 @@ public class Messi implements IJoueur {
     }
 
     public String binoName() {
-    	return "Messi";
+    	return "Ronaldo";
     }
-    
-	String victory = 
+    String victory = 
 	"                         ______                     \r\n" + 
 	" _________        .---\"\"\"      \"\"\"---.              \r\n" + 
 	":______.-':      :  .--------------.  :             \r\n" + 
