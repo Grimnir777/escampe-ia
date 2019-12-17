@@ -4,8 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import game.AlphaBeta;
-import game.AdvancedHeuristique;
+import algos.AdvancedHeuristique;
+import algos.AlphaBeta;
+import algos.OptimusHeuristique;
 
 
 
@@ -15,7 +16,7 @@ public class IATest {
 		game.EscampeBoard board = new game.EscampeBoard();
 		board.play("B2/A1/C1/D2/E1/F2", "noir");
 		board.play("C6/A6/B5/D5/E6/F5", "blanc");
-		AlphaBeta alphaBeta = new AlphaBeta(new AdvancedHeuristique() , "blanc", "noir",1);
+		AlphaBeta alphaBeta = new AlphaBeta(new AdvancedHeuristique() , "blanc", "noir",5);
 		//%  ABCDEF
 		//01 n-n-n- 01
 		//02 -N-n-n 02

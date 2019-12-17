@@ -1,4 +1,6 @@
-package game;
+package algos;
+
+import game.EscampeBoard;
 
 public class AlphaBeta {
 	private final static int PROFMAXDEFAUT = 2;
@@ -26,6 +28,10 @@ public class AlphaBeta {
         return "AlphaBeta(ProfMax="+profMax+")";
     }
     
+   public void setProfMax(int profMax) {
+		this.profMax = profMax;
+   }
+
    public String meilleurCoup(EscampeBoard board) {
 	   this.nbfeuilles = 0;
 	   this.nbnoeuds = 0;
@@ -35,11 +41,9 @@ public class AlphaBeta {
 	   String[] coups = board.possiblesMoves(this.playerMax);
 	   if(coups.length == 0 ) return "E";
 	   for (String coupPossible : coups) {
-		   //System.out.print("\nplay :" + coupPossible);
-		   
 		   EscampeBoard boardCopy = board.clone();
 		   boardCopy.play(coupPossible, this.playerMax);
-
+		   
 		   int alphaCourant = MinValue(boardCopy, alpha, beta, 1);
 		   if(alphaCourant >= previousAlpha) {
 			   coupaJouer = coupPossible;
@@ -51,29 +55,19 @@ public class AlphaBeta {
 	   System.out.println("NB de feuilles :" + this.nbfeuilles);
 	   return coupaJouer;
     }
-
-   
-
     
     int MaxValue(EscampeBoard board, int alpha, int beta, int level) {
-    	//System.out.print("\n");
-    	//for (int i = 0; i < level; i++) {
-		//	System.out.print("--");
-		//}
     	String[] coups = board.possiblesMoves(this.playerMax);
     	if(board.gameOver()) {
-    		//System.out.print(" end of game / H :: " + this.h.eval(board, this.playerMax, board.getPreviousLisere()));
     		this.nbfeuilles++;
-    		return this.h.eval(board, this.playerMax);
+    		return this.h.eval(board, this.playerMax,level);
     	}
     	if(level == this.profMax) {
-    		//System.out.print(" Level max reached / H :: " + this.h.eval(board, this.playerMax, board.getPreviousLisere()));
     		this.nbnoeuds++;
-    		return this.h.eval(board, this.playerMax);
+    		return this.h.eval(board, this.playerMax,level);
     	}
     	this.nbnoeuds++;
     	if(coups.length == 0) {
-    		//System.out.print(" play : Passe son tour");
     		EscampeBoard boardCopy = board.clone();
     		boardCopy.pass();
     		alpha = Math.max(alpha, MinValue(boardCopy, alpha, beta, level+1));
@@ -83,11 +77,6 @@ public class AlphaBeta {
     	}
     	int v = Integer.MIN_VALUE;
     	for (String coupPossible : coups) {
-    		//System.out.print("\n");
-        	//for (int i = 0; i < level; i++) {
-    		//	System.out.print("--");
-    		//}
-    		//System.out.print("play : "+ coupPossible);
     		EscampeBoard boardCopy = board.clone();
     		boardCopy.play(coupPossible, this.playerMax);
     		v = Math.max(alpha, MinValue(boardCopy, alpha, beta, level+1));
@@ -100,25 +89,17 @@ public class AlphaBeta {
     }
     
     int MinValue(EscampeBoard board, int alpha, int beta, int level) {
-    	//System.out.print("\n");
-    	//for (int i = 0; i < level; i++) {
-		//	System.out.print("--");
-		//}
-    	
     	String[] coups = board.possiblesMoves(this.playerMin);
     	if(board.gameOver()) {
-    		//System.out.print(" end of game / H :: " + this.h.eval(board, this.playerMax, board.getPreviousLisere()));
     		this.nbfeuilles++;
-    		return this.h.eval(board, this.playerMax);
+    		return this.h.eval(board, this.playerMax,level);
     	}
     	if(level == this.profMax) {
-    		//System.out.print(" Level max reached / H :: " + this.h.eval(board, this.playerMax, board.getPreviousLisere()));
     		this.nbnoeuds++;
-    		return this.h.eval(board, this.playerMax);
+    		return this.h.eval(board, this.playerMax,level);
     	}
     	this.nbnoeuds++;
     	if(coups.length == 0) {
-    		//System.out.print(" play : Passe son tour");
     		EscampeBoard boardCopy = board.clone();
     		boardCopy.pass();
     		beta = Math.min(beta, MaxValue(boardCopy, alpha, beta, level+1));
@@ -128,11 +109,6 @@ public class AlphaBeta {
     	}
     	int v = Integer.MAX_VALUE;
     	for (String coupPossible : coups) {
-    		//System.out.print("\n");
-        	//for (int i = 0; i < level; i++) {
-    		//	System.out.print("--");
-    		//}
-    		//System.out.print("play : "+ coupPossible);
     		EscampeBoard boardCopy = board.clone();
     		boardCopy.play(coupPossible, this.playerMin);
     		v = Math.min(beta, MaxValue(boardCopy, alpha, beta, level+1));

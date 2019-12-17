@@ -14,6 +14,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import algos.AdvancedHeuristique;
+import algos.AlphaBeta;
+import algos.BasicHeuristique;
+import algos.OptimusHeuristique;
+
 public class EscampeBoard implements Partie1, Cloneable{
 	
 	private int [][] liseres = new int[][] {{1,2,2,3,1,2},
@@ -30,15 +35,15 @@ public class EscampeBoard implements Partie1, Cloneable{
 	
 	private boolean firstB;
 	private boolean firstN;
-	private boolean firstChooseUp;
+	private boolean firstChooseDown;
 	private int lastLisere;
 	
 	private int[] liseresBlanc= {0,0,0};
 	private int[] liseresNoir = {0,0,0};
 	
-	private SquareTools squareTool;
+	public SquareTools squareTool;
 	
-	private ArrayList<String> caseFirstUp = new ArrayList<String>() {
+	private ArrayList<String> caseFirstDown = new ArrayList<String>() {
 		private static final long serialVersionUID = -3708238127665825076L;
 	{
 	    add("A1");
@@ -55,7 +60,7 @@ public class EscampeBoard implements Partie1, Cloneable{
 	    add("F2");
 	}};
 	
-	private ArrayList<String> caseFirstDown = new ArrayList<String>() {
+	private ArrayList<String> caseFirstUp = new ArrayList<String>() {
 		private static final long serialVersionUID = -4694394783351557969L;
 	{
 	    add("A5");
@@ -130,6 +135,8 @@ public class EscampeBoard implements Partie1, Cloneable{
 			}
 		 }
 		 newBoard.squareTool = new SquareTools();
+		 newBoard.liseresBlanc = this.liseresBlanc.clone();
+		 newBoard.liseresNoir = this.liseresNoir.clone();
 		 return newBoard;
 	}
 
@@ -145,8 +152,8 @@ public class EscampeBoard implements Partie1, Cloneable{
 		return this.lastLisere;
 	}
 	
-	public boolean getFirstChooseUp() {
-		return firstChooseUp;
+	public boolean getFirstChooseDown() {
+		return firstChooseDown;
 	}
 	
 	@Override
@@ -261,9 +268,9 @@ public class EscampeBoard implements Partie1, Cloneable{
 			//check ligne
 			if(player.equals("blanc")) { // si on arrive ici le premier coup a été joué
 				for (String mv : moveSquares) {
-					int line = Character.getNumericValue(mv.charAt(1));
-					if(this.firstChooseUp && (line==1 || line==2)) return false;
-					if(!this.firstChooseUp && (line==5 || line==6)) return false;
+					int line = squareTool.getCol(mv);
+					if(this.firstChooseDown && (line==4 || line==5)) return false;
+					if(!this.firstChooseDown && (line==0 || line==1)) return false;
 				}
 			}
 			return true;
@@ -379,10 +386,10 @@ public class EscampeBoard implements Partie1, Cloneable{
 			moves.addAll(this.possibleMovesFirst(this.caseFirstUp));
 		}
 		if(this.firstB && !this.firstN && player.equals("blanc")) {
-			if(this.firstChooseUp) {
-				moves.addAll(this.possibleMovesFirst(this.caseFirstDown));
-			} else {
+			if(this.firstChooseDown) {
 				moves.addAll(this.possibleMovesFirst(this.caseFirstUp));
+			} else {
+				moves.addAll(this.possibleMovesFirst(this.caseFirstDown));
 			}
 		}
 		
@@ -478,6 +485,9 @@ public class EscampeBoard implements Partie1, Cloneable{
 			}
 			else if(player.equals("noir")) {
 				this.firstN = false;
+				System.out.println("ligne ::" + ligne);
+				if(ligne==4 || ligne == 5) firstChooseDown=true;
+				else firstChooseDown=false;
 				this.liseresNoir = liseres.clone();
 			}
 		}
@@ -517,7 +527,6 @@ public class EscampeBoard implements Partie1, Cloneable{
 				liseresNoir[this.board[ligne1][col1].lisere()-1]--;
 				liseresNoir[this.board[ligne2][col2].lisere()-1]++;
 			}
-			
 			this.lastLisere = this.board[ligne2][col2].lisere();
 			this.board[ligne1][col1].resetSquare();
 		}
@@ -529,20 +538,11 @@ public class EscampeBoard implements Partie1, Cloneable{
 	public boolean gameOver() {
 		return !this.licorneB | !this.licorneN;
 	}
-	
-	public int checkStatus() {
-		if(!this.licorneB) return -1;
-		if(!this.licorneN) return 1;
-		return 0;
-	}
-	
-	
+
 	public void pass() {
 		this.lastLisere = 0;
 	}
-	
-	
-	
+
 	public static void main(String[] args) {
 		/*
 		// Quelques tests basiques, pour voir plus de test voir le package test (junit tests)
@@ -592,7 +592,8 @@ public class EscampeBoard implements Partie1, Cloneable{
 		*/
 		
 		EscampeBoard e = new EscampeBoard();
-		e.play("B6/A5/C5/D5/E6/F6", "noir");
+		e.play("C6/A6/B5/D5/E6/F5", "noir");
+		//e.play("B6/A5/C5/D5/E6/F6", "noir");
 		e.play("C2/F1/A2/C1/D1/D2", "blanc");
 		
 		System.out.println("Placement initial");
@@ -624,29 +625,31 @@ public class EscampeBoard implements Partie1, Cloneable{
 		for (int lis : e.getLiseresNoir()) {
 			System.out.println("LIS Noir  ==> " + lis);
 		}
-		
-		
-		
 
+
+		System.out.println("blanc");
+		for (String string : e.possiblesMoves("blanc")) {
+			System.out.println("--> " + string);
+		}
 		
-		/*
-		AlphaBeta ab = new AlphaBeta(new AdvancedHeuristique() , "noir", "blanc",6);
+		
+		AlphaBeta ab = new AlphaBeta(new AdvancedHeuristique() , "blanc", "noir",6);
 		long begin = System.currentTimeMillis();
 		System.out.println("meilleur coup : " + ab.meilleurCoup(e));
 		System.out.println("Time of computing: " + Long.toString((System.currentTimeMillis() - begin)) +"ms" );
 		
 
-		AlphaBeta ab2 = new AlphaBeta(new OptimusHeuritisque() , "noir", "blanc",6);
+		AlphaBeta ab2 = new AlphaBeta(new OptimusHeuristique() , "blanc", "noir",6);
 		begin = System.currentTimeMillis();
 		System.out.println("meilleur coup : " + ab2.meilleurCoup(e));
 		System.out.println("Time of computing: " + Long.toString((System.currentTimeMillis() - begin)) +"ms" );
 		
 		
-		AlphaBeta ab3 = new AlphaBeta(new BasicHeuristique() , "noir", "blanc",6);
+		AlphaBeta ab3 = new AlphaBeta(new BasicHeuristique() , "blanc", "noir",6);
 		begin = System.currentTimeMillis();
 		System.out.println("meilleur coup : " + ab3.meilleurCoup(e));
 		System.out.println("Time of computing: " + Long.toString((System.currentTimeMillis() - begin)) +"ms" );
-		*/
+		
 		
 	}
 }

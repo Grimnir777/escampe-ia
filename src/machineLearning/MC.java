@@ -1,8 +1,8 @@
 package machineLearning;
 
-import game.AlphaBeta;
+import algos.AdvancedHeuristique;
+import algos.AlphaBeta;
 import game.EscampeBoard;
-import game.AdvancedHeuristique;
 
 public class MC {
 	public static void main(String[] args) {

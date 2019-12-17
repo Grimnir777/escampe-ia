@@ -1,8 +1,12 @@
-package game;
+package algos;
 
 import java.util.ArrayList;
 
-public class OptimusHeuritisque implements Heuristique {
+import game.EscampeBoard;
+import game.Square;
+import game.SquareTools;
+
+public class AdvancedHeuristique implements Heuristique {
 	SquareTools squareTool;
 	String player;
 	String[] possiblesMovesBlanc;
@@ -12,31 +16,32 @@ public class OptimusHeuritisque implements Heuristique {
 	String LicorneN;
 	ArrayList<String> paladinsB;
 	ArrayList<String> paladinsN;
-	int[] liseresAllies = {0,0,0};
-	int[] liseresEnnemis = {0,0,0};
 	
-	public OptimusHeuritisque() {
+	public AdvancedHeuristique() {
 		this.squareTool = new SquareTools();
 		this.paladinsB = new ArrayList<>();
 		this.paladinsN = new ArrayList<>();
 	}
 	
-	public int eval(EscampeBoard board, String player){
+	public int eval(EscampeBoard board, String player, int level){
+		//System.out.println("case");
+		//System.out.println(board.toString());
 		this.player = player;
+
 		if(this.player.equals("blanc")) {
 			if(board.getLicorneBState() == false) {
-				return Integer.MIN_VALUE;
+				return Integer.MIN_VALUE/level;
 			}
 			if(board.getLicorneNState() == false) {
-				return Integer.MAX_VALUE;
+				return Integer.MAX_VALUE/level;
 			}
 		}
 		else {
 			if(board.getLicorneNState() == false) {
-				return Integer.MIN_VALUE;
+				return Integer.MIN_VALUE/level;
 			}
 			if(board.getLicorneBState() == false) {
-				return Integer.MAX_VALUE;
+				return Integer.MAX_VALUE/level;
 			}
 		}
 		
@@ -46,16 +51,72 @@ public class OptimusHeuritisque implements Heuristique {
 		if(player.equals("blanc")) {
 			this.possiblesMovesBlanc = board.possiblesMoves("blanc");
 			this.possiblesMovesNoir = board.possiblesMovesForHeuristique("noir");
-			this.liseresAllies = board.getLiseresBlanc().clone();
-			this.liseresEnnemis = board.getLiseresNoir().clone();
 		}
 		else {
 			this.possiblesMovesNoir = board.possiblesMoves("noir");
 			this.possiblesMovesBlanc = board.possiblesMovesForHeuristique("blanc");
-			this.liseresEnnemis = board.getLiseresBlanc().clone();
-			this.liseresAllies = board.getLiseresNoir().clone();
 		}
 		this.squares = board.getBoard();
+		
+		
+		
+		
+		int[] liseresAllies = {0,0,0};
+		int[] liseresEnnemis = {0,0,0};
+		
+		//récupération de tous les lisérés des pièces blanc et noir
+		for (int ligne = 0; ligne < squares.length; ligne++) {
+			for (int col = 0; col < squares[ligne].length; col++) {
+				String type = squares[ligne][col].type();
+				if(type.equals("B")) {
+					int lis = squares[ligne][col].lisere();
+					if(player.equals("blanc")) {
+						liseresAllies[lis-1]++;
+					}
+					else {
+						liseresEnnemis[lis-1]++;
+					}
+					this.LicorneB = squareTool.getStringValue(col, ligne);
+				}
+				else if(type.equals("N")) {
+					int lis = squares[ligne][col].lisere();
+					if(player.equals("noir")) {
+						liseresAllies[lis-1]++;
+					}
+					else {
+						liseresEnnemis[lis-1]++;
+					}
+					this.LicorneN = squareTool.getStringValue(col, ligne);
+				}
+				else if(type.equals("b")) {
+					int lis = squares[ligne][col].lisere();
+					if(player.equals("blanc")) {
+						liseresAllies[lis-1]++;
+					}
+					else {
+						liseresEnnemis[lis-1]++;
+					}
+					this.paladinsB.add(squareTool.getStringValue(col, ligne));
+				}
+				else if(type.equals("n")) {
+					int lis = squares[ligne][col].lisere();
+					if(player.equals("noir")) {
+						liseresAllies[lis-1]++;
+					}
+					else {
+						liseresEnnemis[lis-1]++;
+					}
+					this.paladinsN.add(squareTool.getStringValue(col, ligne));
+				}
+			}
+		}
+		/*
+		System.out.println("lisere allie");
+		System.out.println(liseresAllies[0] + " " + liseresAllies[1] + " " + liseresAllies[2]  );
+		
+		System.out.println("lisere ennemi");
+		System.out.println(liseresEnnemis[0] + " " + liseresEnnemis[1] + " " + liseresEnnemis[2]  );
+		*/
 
 		//1er critère
 		//Calcul du nombre de lisérés adverse
@@ -73,8 +134,8 @@ public class OptimusHeuritisque implements Heuristique {
 		if(liseresEnnemis[2] == 0) {
 			valH = this.defaultAdvLisere(2,valH);
 		}
-
-		//2ème critère
+		
+		//4ème critère
 		//Trouver le nombre de lisérés que l’on couvre.
 		//Si équitable 2 - 2 - 2 valMax = 10
 		//Si une valeur est en défaut : 0-2-4 / 0-1-3 valMin : 0
