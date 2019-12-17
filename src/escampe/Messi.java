@@ -1,6 +1,7 @@
 package escampe;
 
 import game.EscampeBoard;
+import game.AdvancedHeuristique;
 
 public class Messi implements IJoueur {
 	  // Mais pas lors de la conversation avec l'arbitre (méthodes initJoueur et getNumJoueur)
@@ -24,7 +25,12 @@ public class Messi implements IJoueur {
     	this.first = true;
     	this.myColor = mycolour;
     	this.board = new EscampeBoard();
-    	this.choixMouvement();
+    	if(this.myColor == BLANC) {
+    		this.alphaBeta = new AlphaBeta(new AdvancedHeuristique() , "blanc", "noir",4);
+    	}
+    	else {
+    		this.alphaBeta = new AlphaBeta(new AdvancedHeuristique() , "noir", "blanc",4);
+    	}
     }
 
     // Doit retourner l'argument passé par la fonction ci-dessus (constantes BLANC ou NOIR)
