@@ -8,8 +8,9 @@ import game.EscampeBoard;
 
 
 public class MC {
+	
 	public static void main(String[] args) {
-		testMidGame();
+		testBegin();
 	}
 	
 	public static void testBegin() {
@@ -21,13 +22,13 @@ public class MC {
 		
 		Node node = new Node(true, board);
 		node.expand();
-
-		double nbIter = 500;
+		long begin = System.currentTimeMillis();
+		double nbIter = 1000;
 		for (int i = 0; i < nbIter; i++) {
 			System.out.print(new DecimalFormat("0.00").format((i/nbIter)*100) + " %\r");
 			node.selectAction();
 		}
-		
+		System.out.println("Time of computing: " + Long.toString((System.currentTimeMillis() - begin)) +"ms" );
 		
 		System.out.println(node.earningSum);
 		Node bestNode = node.findBestNode();

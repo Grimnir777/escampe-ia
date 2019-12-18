@@ -12,11 +12,7 @@ public class Node {
 	public ArrayList<Node> childs;	 // direct childs of the node
 	public int nbVisits;			 // how many times did we pass by this node 
 	public double earningSum;		 // earning sum reached by this node or its descendant
-	
-	
-	// specific
 	public EscampeBoard board;
-	
 	
 	@Override
 	public String toString() {
