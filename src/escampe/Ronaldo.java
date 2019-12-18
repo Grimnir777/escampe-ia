@@ -1,5 +1,6 @@
 package escampe;
 
+import algos.AdvancedHeuristique;
 import algos.AlphaBeta;
 import algos.BasicHeuristique;
 import game.EscampeBoard;
@@ -28,10 +29,10 @@ public class Ronaldo implements IJoueur {
     	this.myColor = mycolour;
     	this.board = new EscampeBoard();
     	if(this.myColor == BLANC) {
-    		this.alphaBeta = new AlphaBeta(new BasicHeuristique() , "blanc", "noir",6);
+    		this.alphaBeta = new AlphaBeta(new AdvancedHeuristique() , "blanc", "noir",6);
     	}
     	else {
-    		this.alphaBeta = new AlphaBeta(new BasicHeuristique() , "noir", "blanc",6);
+    		this.alphaBeta = new AlphaBeta(new AdvancedHeuristique() , "noir", "blanc",6);
     	}
     }
 
@@ -64,17 +65,17 @@ public class Ronaldo implements IJoueur {
     	else {
     		this.first=false;
     		if(this.myColor == 1) { //si noir on joue direct
-    			board.play("C6/A6/B5/D5/E6/F5", "noir");
-    			return "C6/A6/B5/D5/E6/F5";
+    			board.play("C6/A5/B5/D5/E5/F6", "noir");
+    			return "C6/A5/B5/D5/E5/F6";
     		}
     		else {
     			if(this.board.getFirstChooseDown()) {
-    				board.play("C1/A1/B1/D2/E2/F2", "blanc");
-        			return "C1/A2/B2/D2/E2/F2";
+    				board.play("D1/F2/A2/C2/E1/B2", "blanc");
+        			return "D1/F2/A2/C2/E1/B2";
     			}
     			else {
-    				board.play("C6/A6/B5/D5/E6/F5", "blanc");
-        			return "C6/A6/B5/D5/E6/F5";
+    				board.play("C6/A5/B5/D5/E5/F6", "blanc");
+        			return "C6/A5/B5/D5/E5/F6";
     			}
     		}
     	}
@@ -108,12 +109,19 @@ public class Ronaldo implements IJoueur {
      * 			une chaine dÃ©crivant le mouvement:  par exemple: "A1-B2"
      */
     public void mouvementEnnemi(String coup) {
+    	System.out.println("coup ennemi enregistré : " + coup);
+    	if(coup.equals("E")) {
+    		this.board.pass();
+    		return;
+    	}
     	if(this.myColor == NOIR) {
     		this.board.play(coup, "blanc");
     	}
     	else {
     		this.board.play(coup, "noir");
     	}
+    	System.out.println("state");
+    	System.out.println(this.board);
     }
 
     public String binoName() {

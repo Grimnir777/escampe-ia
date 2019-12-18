@@ -1,8 +1,6 @@
 package machineLearning;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
 import game.EscampeBoard;
 
@@ -19,6 +17,20 @@ public class Node {
 	// specific
 	public EscampeBoard board;
 	
+	
+	@Override
+	public String toString() {
+		String val =  
+				  "leaf :"+ this.leef
+				+ "\nterminal :"+ this.terminal
+				+ "\nplayedByIA :"+ this.playedByIA
+				+ "\nchilds size :"+ this.childs.size() 
+				+ "\nhas parent ? :"+ (this.parent!=null)
+				+ "\nearningSum :"+ this.earningSum
+				+ "\nnbVisits :"+ this.nbVisits + "\n\n"
+				;
+		return val;
+	}
 	public Node(boolean playedByIA, EscampeBoard board) {
 		this.leef = false;
 		this.terminal = false; 
@@ -45,10 +57,16 @@ public class Node {
 	public void selectAction() {
 		this.terminal = true;
 		Node node = this;
+		//System.out.println("root ");
+		//System.out.println( node.toString());
 		while (!node.leef) {
 			node = node.select();
 		}
+		//System.out.println("at the end of select ");
+		//System.out.println(node.toString());
 		node.rollOut(node);
+		//System.out.println("After rollout ");
+		//System.out.println(node.toString());
 	}
 	
 	// from the current Node choose the best child
@@ -79,10 +97,10 @@ public class Node {
 	}
 	
 	public void rollOut(Node node) {
-		childs = null;
+		Node child = null;
 		if(!node.terminal) {
 			node.expand();
-			Node child = winningNode(node, node.playedByIA);
+			child = winningNode(node, node.playedByIA);
 			if (child == null) {
 				child = node.childs.get((int) Math.random() * node.childs.size());
 			}
@@ -107,14 +125,14 @@ public class Node {
 	public void updateValue(double value) {
 		this.nbVisits++;
 		this.earningSum += value;
-		if(parent != null) {
-			parent.updateValue(value*0.9);
+		if(this.parent != null) {
+			this.parent.updateValue(value*0.9);
 		}
 	}
 	
 	public void value() {
-		if(this.board.gameOver() && !this.board.getLicorneNState()) this.earningSum=100;
-		if(this.board.gameOver() && !this.board.getLicorneBState()) this.earningSum=-100;
+		if(this.board.gameOver() && this.board.getLicorneNState()) this.earningSum=100;
+		if(this.board.gameOver() && this.board.getLicorneBState()) this.earningSum=-100;
 	}
 	
 	public Node winningNode(Node node, boolean isIA) {
@@ -156,7 +174,6 @@ public class Node {
 	public Node findBestNode() {
 		Node returnNode = this.childs.get(0);
 		double bestValue = returnNode.earningSum;
-		
 		for (Node child : this.childs) {
 			double value = child.earningSum;
 			if (value > bestValue) {

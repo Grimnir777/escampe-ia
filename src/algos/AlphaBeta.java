@@ -28,11 +28,11 @@ public class AlphaBeta {
         return "AlphaBeta(ProfMax="+profMax+")";
     }
     
-   public void setProfMax(int profMax) {
+    public void setProfMax(int profMax) {
 		this.profMax = profMax;
-   }
+    }
 
-   public String meilleurCoup(EscampeBoard board) {
+    public String meilleurCoup(EscampeBoard board) {
 	   this.nbfeuilles = 0;
 	   this.nbnoeuds = 0;
 	   String coupaJouer= null;
@@ -57,7 +57,7 @@ public class AlphaBeta {
     }
     
     int MaxValue(EscampeBoard board, int alpha, int beta, int level) {
-    	String[] coups = board.possiblesMoves(this.playerMax);
+    	
     	if(board.gameOver()) {
     		this.nbfeuilles++;
     		return this.h.eval(board, this.playerMax,level);
@@ -67,6 +67,7 @@ public class AlphaBeta {
     		return this.h.eval(board, this.playerMax,level);
     	}
     	this.nbnoeuds++;
+    	String[] coups = board.possiblesMoves(this.playerMax);
     	if(coups.length == 0) {
     		EscampeBoard boardCopy = board.clone();
     		boardCopy.pass();
@@ -89,7 +90,6 @@ public class AlphaBeta {
     }
     
     int MinValue(EscampeBoard board, int alpha, int beta, int level) {
-    	String[] coups = board.possiblesMoves(this.playerMin);
     	if(board.gameOver()) {
     		this.nbfeuilles++;
     		return this.h.eval(board, this.playerMax,level);
@@ -99,6 +99,7 @@ public class AlphaBeta {
     		return this.h.eval(board, this.playerMax,level);
     	}
     	this.nbnoeuds++;
+    	String[] coups = board.possiblesMoves(this.playerMin);
     	if(coups.length == 0) {
     		EscampeBoard boardCopy = board.clone();
     		boardCopy.pass();

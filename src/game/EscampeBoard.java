@@ -37,6 +37,7 @@ public class EscampeBoard implements Partie1, Cloneable{
 	private boolean firstN;
 	private boolean firstChooseDown;
 	private int lastLisere;
+	public String lastMove;
 	
 	private int[] liseresBlanc= {0,0,0};
 	private int[] liseresNoir = {0,0,0};
@@ -485,7 +486,6 @@ public class EscampeBoard implements Partie1, Cloneable{
 			}
 			else if(player.equals("noir")) {
 				this.firstN = false;
-				System.out.println("ligne ::" + ligne);
 				if(ligne==4 || ligne == 5) firstChooseDown=true;
 				else firstChooseDown=false;
 				this.liseresNoir = liseres.clone();
@@ -530,6 +530,8 @@ public class EscampeBoard implements Partie1, Cloneable{
 			this.lastLisere = this.board[ligne2][col2].lisere();
 			this.board[ligne1][col1].resetSquare();
 		}
+		this.lastMove = move;
+		
 	}
 	
 	
@@ -590,7 +592,7 @@ public class EscampeBoard implements Partie1, Cloneable{
 		System.out.println("\n-------- Coup joué A1-A2 par le joueur blanc --------");
 		System.out.println(e);
 		*/
-		
+		/*
 		EscampeBoard e = new EscampeBoard();
 		e.play("C6/A6/B5/D5/E6/F5", "noir");
 		//e.play("B6/A5/C5/D5/E6/F6", "noir");
@@ -649,7 +651,38 @@ public class EscampeBoard implements Partie1, Cloneable{
 		begin = System.currentTimeMillis();
 		System.out.println("meilleur coup : " + ab3.meilleurCoup(e));
 		System.out.println("Time of computing: " + Long.toString((System.currentTimeMillis() - begin)) +"ms" );
+		*/
 		
+		EscampeBoard e = new EscampeBoard();
+		e.play("C6/A6/B5/D5/E6/F5", "noir");
+		e.play("C1/A2/B2/D2/E2/F2", "blanc");
+		e.play("F2-E3", "blanc");
+		e.pass();
+		e.play("E3-F3", "blanc");
+		e.play("E6-F4", "noir");
+		e.play("D2-D3", "blanc");
+		e.play("F5-E4", "noir");
+		System.out.println("blanc");
+		for (String string : e.possiblesMoves("blanc")) {
+			System.out.println("--> " + string);
+		}
+		
+		AlphaBeta ab = new AlphaBeta(new AdvancedHeuristique() , "blanc", "noir",6);
+		long begin = System.currentTimeMillis();
+		System.out.println("meilleur coup : " + ab.meilleurCoup(e));
+		System.out.println("Time of computing: " + Long.toString((System.currentTimeMillis() - begin)) +"ms" );
+		
+
+		AlphaBeta ab2 = new AlphaBeta(new OptimusHeuristique() , "blanc", "noir",6);
+		begin = System.currentTimeMillis();
+		System.out.println("meilleur coup : " + ab2.meilleurCoup(e));
+		System.out.println("Time of computing: " + Long.toString((System.currentTimeMillis() - begin)) +"ms" );
+		
+		
+		AlphaBeta ab3 = new AlphaBeta(new BasicHeuristique() , "blanc", "noir",6);
+		begin = System.currentTimeMillis();
+		System.out.println("meilleur coup : " + ab3.meilleurCoup(e));
+		System.out.println("Time of computing: " + Long.toString((System.currentTimeMillis() - begin)) +"ms" );
 		
 	}
 }

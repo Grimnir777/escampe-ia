@@ -66,7 +66,7 @@ public class Messi implements IJoueur {
     	else {
     		this.first=false;
     		if(this.myColor == NOIR) { //si noir on joue direct
-    			move= "C6/A6/B5/D5/E6/F5";
+    			move= "B6/A6/C5/D5/E5/F6";
     			board.play(move, "noir");
     			
     		}
@@ -74,24 +74,18 @@ public class Messi implements IJoueur {
     			String licorneAdverse = this.firstMove.substring(0,2);
     			System.out.println(this.board.getFirstChooseDown());
     			if(this.board.getFirstChooseDown()) { // adversaire en bas ligne 5 et 6
-    				if(licorneAdverse.equals("A5")) {
+    				if(licorneAdverse.equals("A5") || licorneAdverse.equals("E5") || licorneAdverse.equals("A6") || licorneAdverse.equals("A6")) {
     					move="C1/A2/B2/D2/E2/F2";
     				}
-    				else if(licorneAdverse.equals("C5")) {
-    					move="B1/C2/A2/D2/E2/F2";
-    				}
-					else if(licorneAdverse.equals("E5")) {
-						move="C1/A2/B2/D2/E2/F2";
-    				}
-    				else {
-    					move="C1/A2/B2/D2/E2/F2";
+    				else { //permet de gagner si licorne adverse est en C5
+    					move="D1/F2/A2/C2/E1/B2";
     				}
     				
     			}
     			else { // adversaire en haut ligne 1 et 2
     				//Si licorne adverse est en B2 ou en D2 on peut l'avoir en un coup par la suite avec cette config
     				//Sinon elle est équilibrée
-    				move="C6/A5/B5/D5/E5/F6";    				
+    				move="B6/A6/C5/D5/E5/F6";    				
     			}
     			board.play(move, "blanc");
     		}
@@ -138,6 +132,11 @@ public class Messi implements IJoueur {
      * 			une chaine dÃ©crivant le mouvement:  par exemple: "A1-B2"
      */
     public void mouvementEnnemi(String coup) {
+    	System.out.println("coup ennemi enregistré : " + coup);
+    	if(coup.equals("E")) {
+    		this.board.pass();
+    		return;
+    	}
     	this.firstMove = coup;
     	if(this.myColor == NOIR) {
     		this.board.play(coup, "blanc");

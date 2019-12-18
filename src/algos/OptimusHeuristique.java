@@ -49,11 +49,15 @@ public class OptimusHeuristique implements Heuristique {
 		int valH = 0 ;
 		if(player.equals("blanc")) {
 			this.possiblesMovesBlanc = board.possiblesMoves("blanc");
+			this.possiblesMovesNoir = board.possiblesMoves("noir");
+			if(this.possiblesMovesNoir.length == 0) valH+=1000;
 			this.liseresAllies = board.getLiseresBlanc().clone();
 			this.liseresEnnemis = board.getLiseresNoir().clone();
 		}
 		else {
 			this.possiblesMovesNoir = board.possiblesMoves("noir");
+			this.possiblesMovesBlanc = board.possiblesMoves("blanc");
+			if(this.possiblesMovesBlanc.length == 0) valH+=1000;
 			this.liseresEnnemis = board.getLiseresBlanc().clone();
 			this.liseresAllies = board.getLiseresNoir().clone();
 		}
@@ -62,6 +66,7 @@ public class OptimusHeuristique implements Heuristique {
 		//1er critère
 		//Calcul du nombre de lisérés adverse
 		//Si un liséré en défaut et si on peut jouer un coup qui termine sur ce liséré alors validé sinon pas validé
+		
 		
 		// Si aucune pièce ennemie est sur un liséré 1
 		if(liseresEnnemis[0] == 0) {
@@ -75,7 +80,7 @@ public class OptimusHeuristique implements Heuristique {
 		if(liseresEnnemis[2] == 0) {
 			valH = this.defaultAdvLisere(2,valH);
 		}
-
+	 	
 		//2ème critère
 		//Trouver le nombre de lisérés que l’on couvre.
 		//Si équitable 2 - 2 - 2 valMax = 10
